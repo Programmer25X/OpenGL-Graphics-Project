@@ -2,44 +2,24 @@
 #include "Renderer.h"
 
 
-Camera::Camera(GLFWwindow* window)
+Camera::Camera()
 {
 	// View Space 
-
-	cameraPosition = glm::vec3(0.0f, 0.0f, -3.0f); // Sets inital camera position 
-	direction = glm::normalize(cameraPosition - cameraTarget); // Sets the initial camera direction
 	
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-	cameraRight = glm::normalize(glm::cross(up, direction)); // Sets the camera's right direction
+	glm::vec3 frontDirection(0.0f, 0.0f, 0.0f);
+	frontDirection.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	frontDirection.y = sin(glm::radians(pitch));
+	frontDirection.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(frontDirection);
 
-	glm::vec3 cameraUp = glm::cross(direction, cameraRight); // Sets the camera's up direction
-
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = cos(glm::radians(pitch)); 
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	
-	LOG_ERRORS(glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED));
+	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));
+	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 }
 
-
-
-const glm::vec3 Camera::getCameraPosition() const { return cameraPosition; }
-
-const glm::vec3 Camera::getCameraFront() const { return cameraFront; }
-
-const glm::vec3 Camera::getCameraUp() const { return cameraUp; }
-
-GLfloat Camera::getLastXPosition() { return lastXPosition; }
-
-GLfloat Camera::getLastYPosition() { return lastYPosition; }
-
-const GLfloat Camera::getMouseSensitivity() const { return mouseSensitity; }
-
-GLfloat Camera::getYaw() { return yaw; }
-
-GLfloat Camera::getPitch() { return pitch; }
-
-
+glm::mat4 Camera::getViewMatrix() const
+{
+	return glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
+}
 
 void Camera::processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window)
 {
@@ -95,6 +75,40 @@ void Camera::processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window)
 		break;
 	}
 }
+
+void Camera::processMouseMovements(GLfloat xOffset, GLfloat yOffset, GLboolean constrainPitch)
+{ 
+	xOffset *= MOUSE_SENSITIVITY;
+	yOffset *= MOUSE_SENSITIVITY;
+
+	yaw += xOffset;
+	pitch += yOffset;
+
+	if (constrainPitch)
+	{
+		if (pitch > 89.0f)
+		{
+			pitch = 89.0f;
+		}
+		else if (pitch < -89.0f)
+		{
+			pitch = -89.0f;
+		}
+	}
+
+	glm::vec3 frontDirection(0.0f, 0.0f, 0.0f);
+	frontDirection.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	frontDirection.y = sin(glm::radians(pitch));
+	frontDirection.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(frontDirection);
+
+	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));
+	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
+}
+
+
+
+
 
 
 

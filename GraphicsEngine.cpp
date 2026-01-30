@@ -19,22 +19,17 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_impl_glfw.h"
 
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-GLfloat lastXPosition = 400.0f;
-GLfloat lastYPosition = 300.0f;
-GLfloat yaw = -90.0f;
-float pitch = 0.0f;
+
+GLfloat lastXPosition = 800.0f / 2.0f;
+GLfloat lastYPosition = 600.0f / 2.0f;
+GLboolean firstMouseInput = true;
+
+Camera camera;
 
 GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 {
 	engineWindow = pWindow;
 }
-
-GraphicsEngine::~GraphicsEngine()
-{
-
-}
-
 
 void GraphicsEngine::run()
 {
@@ -43,8 +38,15 @@ void GraphicsEngine::run()
 	bool fillPolygons = true;
 	ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+	GLint bufferWidth;
+	GLint bufferHeight;
+
+	Renderer renderer;
+
+
 	GLfloat verticies[] =
 	{
+
 	-100.0f, -100.0f, -100.0f,  0.0f, 0.0f,
 	 100.0f, -100.0f, -100.0f,  1.0f, 0.0f,
 	 100.0f,  100.0f, -100.0f,  1.0f, 1.0f,
@@ -86,6 +88,7 @@ void GraphicsEngine::run()
 	 100.0f,  100.0f,  100.0f,  1.0f, 0.0f,
 	-100.0f,  100.0f,  100.0f,  0.0f, 0.0f,
 	-100.0f,  100.0f, -100.0f,  0.0f, 1.0f,
+
 	};
 
 	glm::vec3 cubePositions[] =
@@ -113,8 +116,11 @@ void GraphicsEngine::run()
 
 
 	glfwMakeContextCurrent(engineWindow->getWindow());
-	// glfwSetCursorPosCallback(engineWindow->getWindow(), mouse_callback(*engineWindow->getWindow(), lastXPosition, lastYPosition));
-	glfwSwapInterval(1); // Syncs to frame rate (FPS)
+	glfwGetFramebufferSize(engineWindow->getWindow(), &bufferWidth, &bufferHeight);
+	glfwSetCursorPosCallback(engineWindow->getWindow(), mouse_callback);
+	// glfwSwapInterval(1); // Syncs to frame rate (FPS)
+	LOG_ERRORS(glfwSetInputMode(engineWindow->getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL));
+
 
 
 	gladLoadGL(); // Loads GLAD to configure OpenGL
@@ -132,27 +138,16 @@ void GraphicsEngine::run()
 
 
 	{
-		GLint bufferWidth;
-		GLint bufferHeight;
-		
-
-		glfwGetFramebufferSize(engineWindow->getWindow(), &bufferWidth, &bufferHeight);
-
 		LOG_ERRORS(glViewport(0,0, bufferWidth, bufferHeight)); // Specifies the size of the viewport
-
-		Renderer renderer; 
-		Camera camera(engineWindow->getWindow()); 
 
 		ImGui_ImplGlfw_InitForOpenGL(engineWindow->getWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 130");
 		ImGui::StyleColorsDark();
 
-
 		VertexArrayObject VAO1;
 		VertexBufferObject VBO1(verticies, sizeof(verticies));
 		VertexBufferLayout layout;
 		ElementBufferObject EBO1(indices, sizeof(indices));
-
 
 		layout.pushElement<float>(3);
 		layout.pushElement<float>(2); 
@@ -181,20 +176,12 @@ void GraphicsEngine::run()
 		Shader shaderProgram("basic_default.vert", "basic_default.frag");
 
 		Texture texture1("Logo.png"); 
-		// Texture texture2("awesomeface.png");
-
 		texture1.bind(0); 
-	   // texture2.bind(1);
-
 		shaderProgram.setUniform1i("texture1", 0);
-		// shaderProgram.setUniformMatrix4f("u_MVP", mvpMatrix); 
-		// shaderProgram.setUniform1i("texture2", 1);
-
 
 		LOG_ERRORS(VAO1.unbind());
 		LOG_ERRORS(VBO1.unbind());
 		LOG_ERRORS(EBO1.unbind());
-
 
 		glm::vec3 vector(halfBufferWidth, halfBufferHeight, 0); // Sets X, Y and Z axis for movement
 
@@ -209,7 +196,7 @@ void GraphicsEngine::run()
 
 			{
 				glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), static_cast<GLfloat>(bufferWidth) / static_cast<GLfloat>(bufferHeight), nearPlane, farPlane);
-				glm::mat4 viewMatrix = glm::lookAt(camera.getCameraPosition(), camera.getCameraPosition() + camera.getCameraFront(), camera.getCameraUp());
+				glm::mat4 viewMatrix = camera.getViewMatrix();
 				glm::mat4 modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 				modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
@@ -265,37 +252,26 @@ void GraphicsEngine::run()
 	glfwTerminate(); // Terminates the program
 }
 
-void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn)
+void GraphicsEngine::mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn)
 {
-	GLfloat xPosition = xPositionIn;
-	GLfloat yPosition = yPositionIn; 
+	GLfloat xPosition= static_cast<GLfloat>(xPositionIn);
+	GLfloat yPosition = static_cast<GLfloat>(yPositionIn);
 
-	GLfloat xOffset = static_cast<GLfloat>(xPosition - lastXPosition);
-	GLfloat yOffset = static_cast<GLfloat>(lastXPosition - yPosition);
-
-	GLfloat mouseSensitity = 0.1f;
-	lastXPosition = static_cast<GLfloat>(xPosition);
-	lastYPosition = static_cast<GLfloat>(yPosition);
-
-	xOffset *= mouseSensitity;
-	yOffset *= mouseSensitity;
-
-	yaw += xOffset;
-	pitch += yOffset;
-
-	if (pitch > 89.0f)
+	if (firstMouseInput)
 	{
-		pitch = 89.0f;
-	}
-	else if (pitch < -89.0f)
-	{
-		pitch = -89.0f;
+		lastXPosition = xPosition;
+		lastYPosition = yPosition;
+		firstMouseInput = GL_FALSE;
 	}
 
-	glm::vec3 direction(0.0f, 0.0f, 0.0f);
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = cos(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cameraFront = glm::normalize(direction);
+	GLfloat xOffset = xPosition - lastXPosition;
+	GLfloat yOffset = lastYPosition - yPosition;
+
+	lastXPosition = xPosition;
+	lastYPosition = yPosition;
+
+	camera.processMouseMovements(xOffset, yOffset); 
 }
+
+
 

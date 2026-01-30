@@ -14,14 +14,13 @@ class GraphicsEngine
 {
 public:
 	GraphicsEngine(EngineWindow* pWindow);
-	~GraphicsEngine(); 
 
 private:
 	EngineWindow* engineWindow;
 
 public:
 	void run();
-
+	static void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn);
 };
 
 #endif
