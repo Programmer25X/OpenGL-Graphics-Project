@@ -20,7 +20,6 @@ private:
 
 public:
 	void run();
-	static void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn);
 };
 
 #endif

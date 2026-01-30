@@ -5,12 +5,12 @@
 
 
 EngineWindow::EngineWindow(const std::string& windowTitle)
-{
+{	
 	if (!glfwInit())
 	{
 		return;
 	}
-	
+
 	windowPtr = glfwCreateWindow(screenWidth, screenHeight, windowTitle.c_str(), glfwGetPrimaryMonitor(), NULL);
 }
 

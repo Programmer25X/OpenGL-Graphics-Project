@@ -18,7 +18,7 @@ Camera::Camera()
 
 glm::mat4 Camera::getViewMatrix() const
 {
-	return glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp);
+	return glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp); // Gets the view matrix for the MVP matrix
 }
 
 void Camera::processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window)
@@ -58,16 +58,16 @@ void Camera::processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window)
 	switch (userInput)
 	{
 	case MoveDirection::UP:
-		cameraPosition += cameraSpeed * deltaTime * cameraFront;
+		cameraPosition += cameraSpeed * deltaTime * cameraFront; // Move camera up
 		break;
 	case MoveDirection::LEFT:
-		cameraPosition -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
+		cameraPosition -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime; // Move camera left
 		break;
 	case MoveDirection::DOWN:
-		cameraPosition -= cameraSpeed * deltaTime * cameraFront;
+		cameraPosition -= cameraSpeed * deltaTime * cameraFront; // Move camera down
 		break;
 	case MoveDirection::RIGHT:
-		cameraPosition += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime;
+		cameraPosition += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * deltaTime; // Move camera right
 		break;
 	case MoveDirection::NONE:
 		break;
@@ -100,10 +100,10 @@ void Camera::processMouseMovements(GLfloat xOffset, GLfloat yOffset, GLboolean c
 	frontDirection.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	frontDirection.y = sin(glm::radians(pitch));
 	frontDirection.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cameraFront = glm::normalize(frontDirection);
 
-	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));
-	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
+	cameraFront = glm::normalize(frontDirection); // Update the camera's local forward direction
+	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp)); // Update the camera's local right direction
+	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront)); // Update the camera's local up direction
 }
 
 

@@ -22,9 +22,12 @@
 
 GLfloat lastXPosition = 800.0f / 2.0f;
 GLfloat lastYPosition = 600.0f / 2.0f;
-GLboolean firstMouseInput = true;
+GLboolean firstMouseInput = GL_TRUE;
 
 Camera camera;
+
+static void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn);
+
 
 GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 {
@@ -103,9 +106,10 @@ void GraphicsEngine::run()
 	};
 
 	// Inform GLFW what version of OpenGL is being used
+
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); 
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	if (engineWindow->getWindow()  == nullptr)
 	{
@@ -118,12 +122,11 @@ void GraphicsEngine::run()
 	glfwMakeContextCurrent(engineWindow->getWindow());
 	glfwGetFramebufferSize(engineWindow->getWindow(), &bufferWidth, &bufferHeight);
 	glfwSetCursorPosCallback(engineWindow->getWindow(), mouse_callback);
-	// glfwSwapInterval(1); // Syncs to frame rate (FPS)
-	LOG_ERRORS(glfwSetInputMode(engineWindow->getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL));
+	glfwSwapInterval(1); // Syncs to frame rate (FPS)
 
 
+	glfwSetInputMode(engineWindow->getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-	gladLoadGL(); // Loads GLAD to configure OpenGL
 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
@@ -252,26 +255,27 @@ void GraphicsEngine::run()
 	glfwTerminate(); // Terminates the program
 }
 
-void GraphicsEngine::mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn)
+void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn)
 {
-	GLfloat xPosition= static_cast<GLfloat>(xPositionIn);
-	GLfloat yPosition = static_cast<GLfloat>(yPositionIn);
-
-	if (firstMouseInput)
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) // Allows the user to pan the camera when holding the right mouse button
 	{
+		GLfloat xPosition = static_cast<GLfloat>(xPositionIn);
+		GLfloat yPosition = static_cast<GLfloat>(yPositionIn); 
+
+		if (firstMouseInput)
+		{
+			lastXPosition = xPosition;
+			lastYPosition = yPosition;
+			firstMouseInput = GL_FALSE;
+		}
+
+		GLfloat xOffset = xPosition - lastXPosition;
+		GLfloat yOffset = lastYPosition - yPosition;
+
 		lastXPosition = xPosition;
 		lastYPosition = yPosition;
-		firstMouseInput = GL_FALSE;
+
+		camera.processMouseMovements(xOffset, yOffset); // 
 	}
 
-	GLfloat xOffset = xPosition - lastXPosition;
-	GLfloat yOffset = lastYPosition - yPosition;
-
-	lastXPosition = xPosition;
-	lastYPosition = yPosition;
-
-	camera.processMouseMovements(xOffset, yOffset); 
 }
-
-
-
