@@ -27,6 +27,7 @@ GLboolean firstMouseInput = GL_TRUE;
 Camera camera;
 
 static void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn);
+static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 
 
 GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
@@ -122,6 +123,7 @@ void GraphicsEngine::run()
 	glfwMakeContextCurrent(engineWindow->getWindow());
 	glfwGetFramebufferSize(engineWindow->getWindow(), &bufferWidth, &bufferHeight);
 	glfwSetCursorPosCallback(engineWindow->getWindow(), mouse_callback);
+	glfwSetScrollCallback(engineWindow->getWindow(), scroll_callback);
 	glfwSwapInterval(1); // Syncs to frame rate (FPS)
 
 
@@ -198,7 +200,7 @@ void GraphicsEngine::run()
 			ImGui::NewFrame();
 
 			{
-				glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), static_cast<GLfloat>(bufferWidth) / static_cast<GLfloat>(bufferHeight), nearPlane, farPlane);
+				glm::mat4 projectionMatrix = camera.getProjectionMatrix(static_cast<const GLfloat>(bufferWidth), static_cast<const GLfloat>(bufferHeight));
 				glm::mat4 viewMatrix = camera.getViewMatrix();
 				glm::mat4 modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
@@ -275,7 +277,11 @@ void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn)
 		lastXPosition = xPosition;
 		lastYPosition = yPosition;
 
-		camera.processMouseMovements(xOffset, yOffset); // 
+		camera.processMouseMovements(xOffset, yOffset); 
 	}
+}
 
+void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
+{
+	camera.processMouseScroll(static_cast<GLfloat>(yOffset)); 
 }

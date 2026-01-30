@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include <iostream>
+#include <format>
 
 
 void clearErrors()
@@ -12,10 +13,7 @@ bool checkAndDisplayErrors(const char* functionName, const char* fileName, int l
 {
 	while (GLenum error = glGetError())
 	{
-		std::cerr << "OpenGL Error: " << error << std::endl;
-		std::cout << "Function: " << functionName << std::endl;
-		std::cout << "File: " << fileName << std::endl;
-		std::cout << "Line: " << line << std::endl << std::endl;
+		std::cerr << std::format("OpenGL Error {}\nFunction: {}\nFile: {}\nLine: {}", error, functionName, fileName, line) << std::endl;
 		return false;
 	}
 

@@ -6,6 +6,7 @@
 #include<sstream>
 #include<iostream>
 #include<cerrno>
+#include <format>
 
 
 Shader::Shader(const char* vertexFile, const char* fragementFile)
@@ -55,7 +56,7 @@ void Shader::compileShader()
 	}
 	catch (const std::ifstream::failure error)
 	{
-		std::cerr << "ERROR::SHADER::FILE_UNSUCCESSFULLY_READ\n " << error.what() << std::endl;
+		std::cerr << std::format("ERROR::SHADER::FILE_UNSUCCESSFULLY_READ\n{}", error.what()) << std::endl;
 	}
 
 	const GLchar* vertexSource = vertexCode.c_str();
@@ -75,7 +76,7 @@ void Shader::compileShader()
 	if (!vertexShaderSuccess)
 	{
 		LOG_ERRORS(glGetShaderInfoLog(vertexShader, 512, NULL, infoLog));
-		std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl; // Outputs the error
+		std::cerr << std::format("ERROR::SHADER::VERTEX::COMPILATION_FAILED\n{}", infoLog) << std::endl; // Outputs the error
 		LOG_ERRORS(glDeleteShader(vertexShader));
 		return; 
 	}
@@ -92,7 +93,7 @@ void Shader::compileShader()
 	if (fragmentShaderSuccess == GL_FALSE)
 	{
 		LOG_ERRORS(glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog));
-		std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl; // Outputs the error
+		std::cerr << std::format("ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n{}", infoLog) << std::endl; // Outputs the error
 		LOG_ERRORS(glDeleteShader(fragmentShader));
 		return;
 	}
@@ -109,7 +110,7 @@ void Shader::compileShader()
 	if (shaderSuccess == GL_FALSE)
 	{
 		LOG_ERRORS(glGetProgramInfoLog(id, 512, NULL, infoLog));
-		std::cerr << "ERROR::SHADER::LINK_FAILED\n" << infoLog << std::endl; // Outputs the error
+		std::cerr << std::format("ERROR::SHADER::LINK_FAILED\n{}", infoLog) << std::endl; // Outputs the error
 		LOG_ERRORS(glDeleteProgram(id));
 		return;
 	}

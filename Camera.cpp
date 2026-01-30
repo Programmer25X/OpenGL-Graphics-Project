@@ -1,6 +1,8 @@
 #include "Camera.h"
 #include "Renderer.h"
 
+#include <cmath>
+#include <algorithm>
 
 Camera::Camera()
 {
@@ -20,6 +22,12 @@ glm::mat4 Camera::getViewMatrix() const
 {
 	return glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp); // Gets the view matrix for the MVP matrix
 }
+
+glm::mat4 Camera::getProjectionMatrix(const GLfloat bufferWidth, const GLfloat bufferHeight, const GLfloat nearPlane, const GLfloat farPlane) const
+{
+	return glm::perspective(glm::radians(fieldOfView), static_cast<GLfloat>(bufferWidth / bufferHeight), nearPlane, farPlane); 
+}
+
 
 void Camera::processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window)
 {
@@ -86,14 +94,7 @@ void Camera::processMouseMovements(GLfloat xOffset, GLfloat yOffset, GLboolean c
 
 	if (constrainPitch)
 	{
-		if (pitch > 89.0f)
-		{
-			pitch = 89.0f;
-		}
-		else if (pitch < -89.0f)
-		{
-			pitch = -89.0f;
-		}
+		pitch = std::ranges::clamp(pitch, -89.0f, 89.0f);
 	}
 
 	glm::vec3 frontDirection(0.0f, 0.0f, 0.0f);
@@ -104,6 +105,12 @@ void Camera::processMouseMovements(GLfloat xOffset, GLfloat yOffset, GLboolean c
 	cameraFront = glm::normalize(frontDirection); // Update the camera's local forward direction
 	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp)); // Update the camera's local right direction
 	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront)); // Update the camera's local up direction
+}
+
+void Camera::processMouseScroll(GLfloat yOffset)
+{
+	fieldOfView -= yOffset;
+	fieldOfView = std::ranges::clamp(fieldOfView, 1.0f, 45.0f);
 }
 
 

@@ -24,16 +24,20 @@ private:
 
 	GLfloat yaw = -90.0f;
 	GLfloat pitch = 0.0f;
-
 	const GLfloat MOUSE_SENSITIVITY = 0.1f;
 
-	glm::mat4 viewMatrix; 
+	GLfloat fieldOfView = 45.0f;
+
+	glm::mat4 viewMatrix = glm::mat4(0.0f);
+	glm::mat4 projectionMatrix = glm::mat4(0.0f); 
 
 public:
 	glm::mat4 getViewMatrix() const; 
+	glm::mat4 getProjectionMatrix(const GLfloat bufferWidth, const GLfloat bufferHeight, const GLfloat nearPlane = 0.1f, const GLfloat farPlane = 1000.0f) const;
 
 	void processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window);
 	void processMouseMovements(GLfloat xOffset, GLfloat yOffset, GLboolean constrainPitch = GL_TRUE);
+	void processMouseScroll(GLfloat yOffset); 
 };
 
 
