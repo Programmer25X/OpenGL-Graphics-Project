@@ -11,6 +11,7 @@
 #include "EBO.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "Objects.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -37,6 +38,8 @@ GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 
 void GraphicsEngine::run()
 {
+	LogoCube cube;
+
 	GLfloat aspectRatio = 0.0f; 
 	bool isLightingOn = true;
 	bool fillPolygons = true;
@@ -48,63 +51,6 @@ void GraphicsEngine::run()
 	Renderer renderer;
 
 
-	GLfloat verticies[] =
-	{
-
-	-100.0f, -100.0f, -100.0f,  0.0f, 0.0f,
-	 100.0f, -100.0f, -100.0f,  1.0f, 0.0f,
-	 100.0f,  100.0f, -100.0f,  1.0f, 1.0f,
-	 100.0f,  100.0f, -100.0f,  1.0f, 1.0f,
-	-100.0f,  100.0f, -100.0f,  0.0f, 1.0f,
-	-100.0f, -100.0f, -100.0f,  0.0f, 0.0f,
-
-	-100.0f, -100.0f,  100.0f,  0.0f, 0.0f,
-	 100.0f, -100.0f,  100.0f,  1.0f, 0.0f,
-	 100.0f,  100.0f,  100.0f,  1.0f, 1.0f,
-	 100.0f,  100.0f,  100.0f,  1.0f, 1.0f,
-	-100.0f,  100.0f,  100.0f,  0.0f, 1.0f,
-	-100.0f, -100.0f,  100.0f,  0.0f, 0.0f,
-
-	-100.0f,  100.0f,  100.0f,  1.0f, 0.0f,
-	-100.0f,  100.0f, -100.0f,  1.0f, 1.0f,
-	-100.0f, -100.0f, -100.0f,  0.0f, 1.0f,
-	-100.0f, -100.0f, -100.0f,  0.0f, 1.0f,
-	-100.0f, -100.0f,  100.0f,  0.0f, 0.0f,
-	-100.0f,  100.0f,  100.0f,  1.0f, 0.0f,
-
-	 100.0f,  100.0f,  100.0f,  1.0f, 0.0f,
-	 100.0f,  100.0f, -100.0f,  1.0f, 1.0f,
-	 100.0f, -100.0f, -100.0f,  0.0f, 1.0f,
-	 100.0f, -100.0f, -100.0f,  0.0f, 1.0f,
-	 100.0f, -100.0f,  100.0f,  0.0f, 0.0f,
-	 100.0f,  100.0f,  100.0f,  1.0f, 0.0f,
-
-	-100.0f, -100.0f, -100.0f,  0.0f, 1.0f,
-	 100.0f, -100.0f, -100.0f,  1.0f, 1.0f,
-	 100.0f, -100.0f,  100.0f,  1.0f, 0.0f,
-	 100.0f, -100.0f,  100.0f,  1.0f, 0.0f,
-	-100.0f, -100.0f,  100.0f,  0.0f, 0.0f,
-	-100.0f, -100.0f, -100.0f,  0.0f, 1.0f,
-
-	-100.0f,  100.0f, -100.0f,  0.0f, 1.0f,
-	 100.0f,  100.0f, -100.0f,  1.0f, 1.0f,
-	 100.0f,  100.0f,  100.0f,  1.0f, 0.0f,
-	 100.0f,  100.0f,  100.0f,  1.0f, 0.0f,
-	-100.0f,  100.0f,  100.0f,  0.0f, 0.0f,
-	-100.0f,  100.0f, -100.0f,  0.0f, 1.0f,
-
-	};
-
-	glm::vec3 cubePositions[] =
-	{
-		glm::vec3(0.0f, 0.0f, 0.0f)
-	};
-
-	GLuint indices[] =
-	{
-		0, 1, 2,
-		2, 3, 0
-	};
 
 	// Inform GLFW what version of OpenGL is being used
 
@@ -148,11 +94,11 @@ void GraphicsEngine::run()
 		ImGui_ImplGlfw_InitForOpenGL(engineWindow->getWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 130");
 		ImGui::StyleColorsDark();
-
+ 
 		VertexArrayObject VAO1;
-		VertexBufferObject VBO1(verticies, sizeof(verticies));
+		VertexBufferObject VBO1(cube.verticies.data(), cube.verticies.size());
 		VertexBufferLayout layout;
-		ElementBufferObject EBO1(indices, sizeof(indices));
+		ElementBufferObject EBO1(cube.indices.data(), cube.indices.size());
 
 		layout.pushElement<float>(3);
 		layout.pushElement<float>(2); 
@@ -166,9 +112,6 @@ void GraphicsEngine::run()
 		const GLfloat halfBufferHeight = static_cast<GLfloat>(bufferHeight) * 0.5f / engineWindow->getAspectRatio();
 		const GLfloat nearPlane = 0.1f;
 		const GLfloat farPlane = 1000.0f;
-
-	//  glm::mat4 projectionMatrix = glm::ortho(-halfBufferWidth, halfBufferWidth, -halfBufferHeight, halfBufferHeight, -1.0f, 1.0f);
-	//	glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(-100, 0, 0));
 
 		glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), static_cast<GLfloat>(bufferWidth) / static_cast<GLfloat>(bufferHeight), nearPlane, farPlane);
 		glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));

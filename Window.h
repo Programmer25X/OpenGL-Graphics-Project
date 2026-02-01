@@ -24,7 +24,7 @@ public:
 	GLFWwindow* getWindow() const; 
 	const GLint getWidth() const;
 	const GLint getHeight() const; 
-	const GLint getAspectRatio() const;
+	const GLfloat getAspectRatio() const;
 	const void setAspectRatio(const GLint bufferWidth, const GLint bufferHeight);
 
 

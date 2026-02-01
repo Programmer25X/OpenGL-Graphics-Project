@@ -1,11 +1,13 @@
 #include "VBO.h"
 #include "Renderer.h"
 
-VertexBufferObject::VertexBufferObject(const void* vertices, GLuint size)
+#include <ctype.h>
+
+VertexBufferObject::VertexBufferObject(const void* vertices, GLsizeiptr size)
 {
 	LOG_ERRORS(glGenBuffers(1, &id));
 	LOG_ERRORS(glBindBuffer(GL_ARRAY_BUFFER, id));
-	LOG_ERRORS(glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW));
+	LOG_ERRORS(glBufferData(GL_ARRAY_BUFFER, size * sizeof(GLfloat), vertices, GL_STATIC_DRAW));
 }
 
 VertexBufferObject::~VertexBufferObject()

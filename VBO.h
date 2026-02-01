@@ -8,7 +8,7 @@
 class VertexBufferObject
 {
 public:
-	VertexBufferObject(const void* vertices, GLuint size);
+	VertexBufferObject(const void* vertices, GLsizeiptr size);
 	~VertexBufferObject(); 
 
 private:

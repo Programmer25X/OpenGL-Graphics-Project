@@ -20,7 +20,7 @@ const GLint EngineWindow::getWidth() const { return screenWidth; }
 
 const GLint EngineWindow::getHeight() const { return screenHeight; }
 
-const GLint EngineWindow::getAspectRatio() const { return aspectRatio; }
+const GLfloat EngineWindow::getAspectRatio() const { return aspectRatio; }
 
 
 const void EngineWindow::setAspectRatio(const GLint bufferWidth, const GLint bufferHeight)
