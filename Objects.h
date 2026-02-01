@@ -72,6 +72,12 @@ public:
 	};
 
 	glm::vec3 cubePosition = glm::vec3(0.0f, 0.0f, 0.0f);
+
+public:
+
+	const glm::vec3 getCubePosition() const;
+	const std::vector<GLuint> getIndices() const; 
+	const std::vector<GLfloat> getVerticies() const;
 };
 
 #endif

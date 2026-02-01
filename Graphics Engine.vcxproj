@@ -147,6 +147,7 @@
     <ClCompile Include="Libraries\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="Libraries\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Objects.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="stb_image.cpp" />
