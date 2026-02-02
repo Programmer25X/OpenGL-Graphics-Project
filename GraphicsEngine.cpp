@@ -131,9 +131,6 @@ void GraphicsEngine::run()
 		LOG_ERRORS(VBO1.unbind());
 		LOG_ERRORS(EBO1.unbind());
 
-		glm::vec3 vector(halfBufferWidth, halfBufferHeight, 0); // Sets X, Y and Z axis for movement
-
-
 		while (!glfwWindowShouldClose(engineWindow->getWindow()))
 		{
 			renderer.clear(); 
@@ -156,9 +153,6 @@ void GraphicsEngine::run()
 				renderer.draw(VAO1, EBO1, shaderProgram);
 
 				ImGui::Begin("Graphics Engine");                          
-
-				ImGui::SliderFloat("Translation.X", &vector.x, -halfBufferWidth, halfBufferWidth);     
-				ImGui::SliderFloat("Translation.Y", &vector.y, -halfBufferHeight, halfBufferHeight);
 				ImGui::ColorEdit3("Clear Color", (float*)&clearColor); 
 				LOG_ERRORS(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w)); 
 
