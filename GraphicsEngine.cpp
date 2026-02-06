@@ -100,12 +100,22 @@ void GraphicsEngine::run()
  
 		VertexArrayObject VAO1;
 		VertexBufferObject VBO1(cube.verticies.data(), cube.verticies.size());
-		VertexBufferLayout layout;
+		VertexBufferLayout layout1;
 		ElementBufferObject EBO1(cube.indices.data(), cube.indices.size());
 
-		layout.pushElement<float>(3);
-		layout.pushElement<float>(2); 
-		LOG_ERRORS(VAO1.addBuffer(VBO1, layout)); 
+		VertexArrayObject VAO2;
+		VertexBufferObject VBO2(light.verticies.data(), light.verticies.size());
+		VertexBufferLayout layout2;
+		ElementBufferObject EBO2(light.indices.data(), light.indices.size());
+
+		layout1.pushElement<float>(3);
+		layout1.pushElement<float>(2);
+
+		layout2.pushElement<float>(3);
+
+		LOG_ERRORS(VAO1.addBuffer(VBO1, layout1)); 
+		LOG_ERRORS(VAO2.addBuffer(VBO2, layout2));
+
 
 
 		// =========================== MVP Pipeline ===================================================== //
@@ -124,11 +134,12 @@ void GraphicsEngine::run()
 
 		// =============================================================================================== // 
 
-		Shader shaderProgram("basic_default.vert", "basic_default.frag");
+		Shader cubeShader("basic_default.vert", "basic_default.frag");
+		Shader lightShader("lightCube.vert", "lightCube.frag");
 
 		Texture texture1("Logo.png"); 
 		texture1.bind(0); 
-		shaderProgram.setUniform1i("texture1", 0);
+		cubeShader.setUniform1i("texture1", 0);
 
 
 		while (!glfwWindowShouldClose(engineWindow->getWindow()))
@@ -147,10 +158,22 @@ void GraphicsEngine::run()
 				modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 				glm::mat4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
 
-				shaderProgram.useShader();
-				shaderProgram.setUniformMatrix4f("u_MVP", mvpMatrix);
+				cubeShader.useShader();
+				cubeShader.setUniformMatrix4f("u_MVP", mvpMatrix);
 
-				renderer.draw(VAO1, EBO1, shaderProgram);
+
+				glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+				glm::vec3 lightPos = light.lightPosition;
+				modelMatrix = glm::mat4(1.0f);
+				modelMatrix = glm::translate(modelMatrix, lightPos * 0.25f);
+				mvpMatrix = projectionMatrix * viewMatrix * modelMatrix; 
+
+				lightShader.useShader();
+				lightShader.setUniformMatrix4f("u_MVP", mvpMatrix);
+				lightShader.setVector4("lightColor", lightColor.x, lightColor.y, lightColor.z, 1.0f); 
+
+				renderer.draw(VAO1, EBO1, cubeShader);
+				renderer.draw(VAO2, EBO2, lightShader); 
 
 				ImGui::Begin("Graphics Engine");                          
 				ImGui::ColorEdit3("Clear Color", (float*)&clearColor); 
@@ -183,7 +206,7 @@ void GraphicsEngine::run()
 			glfwPollEvents(); // Handle all GLFW events
 	}
 
-		shaderProgram.stopUsingShader();
+		cubeShader.stopUsingShader();
 }
 
 	ImGui_ImplOpenGL3_Shutdown();
