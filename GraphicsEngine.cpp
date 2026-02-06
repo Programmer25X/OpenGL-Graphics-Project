@@ -12,6 +12,7 @@
 #include "Texture.h"
 #include "Camera.h"
 #include "Objects.h"
+#include "Lighting.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -39,6 +40,8 @@ GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 void GraphicsEngine::run()
 {
 	LogoCube cube;
+	Lighting light; 
+	
 
 	GLfloat aspectRatio = 0.0f; 
 	bool isLightingOn = true;
