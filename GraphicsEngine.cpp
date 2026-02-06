@@ -105,7 +105,7 @@ void GraphicsEngine::run()
 		LOG_ERRORS(VAO1.addBuffer(VBO1, layout)); 
 
 
-		// =========================== MVP Pipeline ===================================================== /
+		// =========================== MVP Pipeline ===================================================== //
 
 		engineWindow->setAspectRatio(bufferWidth, bufferHeight); 
 		const GLfloat halfBufferWidth = static_cast<GLfloat>(bufferWidth) * 0.5f / engineWindow->getAspectRatio();
@@ -114,7 +114,7 @@ void GraphicsEngine::run()
 		const GLfloat farPlane = 1000.0f;
 
 		glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), static_cast<GLfloat>(bufferWidth) / static_cast<GLfloat>(bufferHeight), nearPlane, farPlane);
-		glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+		glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 		glm::mat4 modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	  glm::mat4 mvpMatrix =  projectionMatrix * viewMatrix * modelMatrix;
@@ -127,9 +127,6 @@ void GraphicsEngine::run()
 		texture1.bind(0); 
 		shaderProgram.setUniform1i("texture1", 0);
 
-		LOG_ERRORS(VAO1.unbind());
-		LOG_ERRORS(VBO1.unbind());
-		LOG_ERRORS(EBO1.unbind());
 
 		while (!glfwWindowShouldClose(engineWindow->getWindow()))
 		{
