@@ -5,7 +5,7 @@ layout(location = 1) in vec2 texCoord;
 
 out vec2 v_TexCoord;
 
-uniform mat4 u_MVP; 
+uniform mat4 u_MVP;
 
 void main()
 {

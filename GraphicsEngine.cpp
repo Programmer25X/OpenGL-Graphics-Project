@@ -40,7 +40,7 @@ GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 void GraphicsEngine::run()
 {
 	LogoCube cube;
-	Lighting light; 
+	Lighting light(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	
 
 	GLfloat aspectRatio = 0.0f; 
@@ -104,9 +104,9 @@ void GraphicsEngine::run()
 		ElementBufferObject EBO1(cube.indices.data(), cube.indices.size());
 
 		VertexArrayObject VAO2;
-		VertexBufferObject VBO2(light.verticies.data(), light.verticies.size());
+		VertexBufferObject VBO2(light.getVerticies().data(), light.getVerticies().size());
 		VertexBufferLayout layout2;
-		ElementBufferObject EBO2(light.indices.data(), light.indices.size());
+		ElementBufferObject EBO2(light.getIndices().data(), light.getIndices().size());
 
 		layout1.pushElement<float>(3);
 		layout1.pushElement<float>(2);
@@ -160,17 +160,16 @@ void GraphicsEngine::run()
 
 				cubeShader.useShader();
 				cubeShader.setUniformMatrix4f("u_MVP", mvpMatrix);
+				cubeShader.setVector4("lightColor", light.getLightColor().r, light.getLightColor().g, light.getLightColor().b, light.getLightColor().a);
 
 
-				glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-				glm::vec3 lightPos = light.lightPosition;
 				modelMatrix = glm::mat4(1.0f);
-				modelMatrix = glm::translate(modelMatrix, lightPos * 0.25f);
+				modelMatrix = glm::translate(modelMatrix, light.getLightPosition());
 				mvpMatrix = projectionMatrix * viewMatrix * modelMatrix; 
 
 				lightShader.useShader();
 				lightShader.setUniformMatrix4f("u_MVP", mvpMatrix);
-				lightShader.setVector4("lightColor", lightColor.x, lightColor.y, lightColor.z, 1.0f); 
+				lightShader.setVector4("lightColor", light.getLightColor().r, light.getLightColor().g, light.getLightColor().b, light.getLightColor().a);
 
 				renderer.draw(VAO1, EBO1, cubeShader);
 				renderer.draw(VAO2, EBO2, lightShader); 
