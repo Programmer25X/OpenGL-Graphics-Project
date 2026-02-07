@@ -35,6 +35,7 @@ public:
 	void setUniform1i(const std::string& uniformName, GLint value);
 	void setUniform1f(const std::string& uniformName, GLfloat value);
 	void setUniformMatrix4f(const std::string& uniformName, const glm::mat4& matrix);
+	void setVector3(const std::string& uniformName, const GLfloat parameterOne, const GLfloat parameterTwo, const GLfloat perameterThree);
 	void setVector4(const std::string& uniformName, const GLfloat parameterOne, const GLfloat parameterTwo, const GLfloat perameterThree, const GLfloat parameterFour);
 
 };

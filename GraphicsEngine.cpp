@@ -40,13 +40,18 @@ GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 void GraphicsEngine::run()
 {
 	LogoCube cube;
-	Lighting light(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	AmbientLight ambientLight(glm::vec3(0.0f, 1.0f, 0.0f), 0.1f); 
 	
 
 	GLfloat aspectRatio = 0.0f; 
-	bool isLightingOn = true;
+	bool isAmbientLightingOn = true;
 	bool fillPolygons = true;
 	ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+
+	ImVec4 sceneAmbientLightColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	GLfloat sceneAmbientLightStrength = 0.1f;
+
 
 	GLint bufferWidth;
 	GLint bufferHeight;
@@ -103,18 +108,10 @@ void GraphicsEngine::run()
 		VertexBufferLayout layout1;
 		ElementBufferObject EBO1(cube.indices.data(), cube.indices.size());
 
-		VertexArrayObject VAO2;
-		VertexBufferObject VBO2(light.getVerticies().data(), light.getVerticies().size());
-		VertexBufferLayout layout2;
-		ElementBufferObject EBO2(light.getIndices().data(), light.getIndices().size());
 
 		layout1.pushElement<float>(3);
 		layout1.pushElement<float>(2);
-
-		layout2.pushElement<float>(3);
-
 		LOG_ERRORS(VAO1.addBuffer(VBO1, layout1)); 
-		LOG_ERRORS(VAO2.addBuffer(VBO2, layout2));
 
 
 
@@ -135,12 +132,12 @@ void GraphicsEngine::run()
 		// =============================================================================================== // 
 
 		Shader cubeShader("basic_default.vert", "basic_default.frag");
-		Shader lightShader("lightCube.vert", "lightCube.frag");
 
 		Texture texture1("Logo.png"); 
 		texture1.bind(0); 
+		cubeShader.useShader(); 
 		cubeShader.setUniform1i("texture1", 0);
-
+		cubeShader.setVector3("u_lightColor", static_cast<GLfloat>(ambientLight.getAmbient().r), static_cast<GLfloat>(ambientLight.getAmbient().g), static_cast<GLfloat>(ambientLight.getAmbient().b));
 
 		while (!glfwWindowShouldClose(engineWindow->getWindow()))
 		{
@@ -160,26 +157,24 @@ void GraphicsEngine::run()
 
 				cubeShader.useShader();
 				cubeShader.setUniformMatrix4f("u_MVP", mvpMatrix);
-				cubeShader.setVector4("lightColor", light.getLightColor().r, light.getLightColor().g, light.getLightColor().b, light.getLightColor().a);
-
-
-				modelMatrix = glm::mat4(1.0f);
-				modelMatrix = glm::translate(modelMatrix, light.getLightPosition());
-				mvpMatrix = projectionMatrix * viewMatrix * modelMatrix; 
-
-				lightShader.useShader();
-				lightShader.setUniformMatrix4f("u_MVP", mvpMatrix);
-				lightShader.setVector4("lightColor", light.getLightColor().r, light.getLightColor().g, light.getLightColor().b, light.getLightColor().a);
 
 				renderer.draw(VAO1, EBO1, cubeShader);
-				renderer.draw(VAO2, EBO2, lightShader); 
 
-				ImGui::Begin("Graphics Engine");                          
+				ImGui::Begin("Graphics Engine");     
+
+				if (isAmbientLightingOn)
+				{
+					ImGui::ColorEdit3("Ambient Light Colour", (float*)&sceneAmbientLightColor);
+					ImGui::SliderFloat("Ambient Light Intensity", (float*)&sceneAmbientLightStrength, 0.0f, 100.0f);
+					ambientLight.setAmbientColor(sceneAmbientLightColor.x, sceneAmbientLightColor.y, sceneAmbientLightColor.z);
+					ambientLight.setAmbientStrength(sceneAmbientLightStrength); 
+					cubeShader.setVector3("u_lightColor", static_cast<GLfloat>(ambientLight.getAmbient().r), static_cast<GLfloat>(ambientLight.getAmbient().g), static_cast<GLfloat>(ambientLight.getAmbient().b));
+				}
+
 				ImGui::ColorEdit3("Clear Color", (float*)&clearColor); 
 				LOG_ERRORS(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w)); 
 
-
-				ImGui::Checkbox("Lighting", &isLightingOn);
+				ImGui::Checkbox("Ambient Lighting", &isAmbientLightingOn);
 				ImGui::Checkbox("Fill Polygons", &fillPolygons);
 
 				if (fillPolygons)

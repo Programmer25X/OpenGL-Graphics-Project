@@ -5,6 +5,10 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_opengl3.h"
+#include "imgui/imgui_impl_glfw.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <vector>
@@ -13,11 +17,11 @@ class Lighting
 {
 
 public:
-	Lighting(const glm::vec4& pLightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+	Lighting(const glm::vec3& pLightColor = glm::vec3(1.0f, 1.0f, 1.0f));
 
 protected:
 
-	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	glm::vec3 lightPosition = glm::vec3(120.0f, 120.0f, 200.0f);
 	glm::vec3 lightDirection = glm::vec3(0, 0, 0);
 	GLfloat lightIntensity = 0.0f; 
@@ -88,13 +92,28 @@ protected:
 	};
 
 public:
-	const glm::vec4 getLightColor() const;
+	const glm::vec3 getLightColor() const;
 	const glm::vec3 getLightPosition() const;
 	const glm::vec3 getLightDirection() const;
 	const GLfloat getLightIntensity() const; 
 	const std::vector<GLuint> getIndices() const;
 	const std::vector<GLfloat> getVerticies() const; 
 
+};
+
+class AmbientLight : public Lighting
+{
+public:
+	AmbientLight(const glm::vec3& pLightColor = glm::vec3(1.0f, 1.0f, 1.0f), const GLfloat pAmbientStrength = 0.1f);
+
+private:
+	GLfloat ambientStrength = 0.0f;
+	glm::vec3 ambient = glm::vec3(0, 0, 0); 
+
+public:
+	const glm::vec3 getAmbient() const; 
+	void setAmbientColor(const GLfloat r, const GLfloat g, const GLfloat b);
+	void setAmbientStrength(const GLfloat pAmbientStrength);
 };
 
 class PointLight : public Lighting

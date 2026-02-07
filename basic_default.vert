@@ -11,4 +11,4 @@ void main()
 {
     gl_Position = u_MVP * position;
     v_TexCoord = texCoord;
-};
+}

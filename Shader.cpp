@@ -135,25 +135,26 @@ void Shader::stopUsingShader() const
 
 void Shader::setUniform1i(const std::string& uniformName, GLint value)
 {
-	useShader();
 	LOG_ERRORS(glUniform1i(getUniformLocation(uniformName), value))
 }
 
 void Shader::setUniform1f(const std::string& uniformName, GLfloat value)  // Transparency, animations, etc
 {
-	useShader();
 	LOG_ERRORS(glUniform1f(getUniformLocation(uniformName), value));
 }
 
 void Shader::setUniformMatrix4f(const std::string& uniformName, const glm::mat4& matrix)
 {
-	useShader();
 	LOG_ERRORS(glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, &matrix[0][0]));
+}
+
+void Shader::setVector3(const std::string& uniformName, const GLfloat parameterOne, const GLfloat parameterTwo, const GLfloat perameterThree)
+{
+	LOG_ERRORS(glUniform3f(getUniformLocation(uniformName), parameterOne, parameterTwo, perameterThree));
 }
 
 void Shader::setVector4(const std::string& uniformName, const GLfloat parameterOne, const GLfloat parameterTwo, const GLfloat parameterThree, const GLfloat parameterFour)
 {
-	useShader();
 	LOG_ERRORS(glUniform4f(getUniformLocation(uniformName), parameterOne, parameterTwo, parameterThree, parameterFour));
 }
 
