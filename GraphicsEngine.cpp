@@ -110,6 +110,7 @@ void GraphicsEngine::run()
 
 
 		layout1.pushElement<float>(3);
+		layout1.pushElement<float>(3);
 		layout1.pushElement<float>(2);
 		LOG_ERRORS(VAO1.addBuffer(VBO1, layout1)); 
 

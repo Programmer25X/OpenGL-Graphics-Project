@@ -116,17 +116,7 @@ public:
 	void setAmbientStrength(const GLfloat pAmbientStrength);
 };
 
-class PointLight : public Lighting
-{
-
-};
-
-class DirectionalLight : public Lighting
-{
-
-};
-
-class SpotLight : public Lighting
+class DiffuseLight : public Lighting
 {
 
 };

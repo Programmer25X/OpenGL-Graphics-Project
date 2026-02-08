@@ -189,6 +189,10 @@
   <ItemGroup>
     <Image Include="Textures\Logo.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="DiffuseLightShader.frag" />
+    <None Include="DiffuseLightShader.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
