@@ -32,8 +32,9 @@ private:
 	glm::mat4 projectionMatrix = glm::mat4(0.0f); 
 
 public:
-	glm::mat4 getViewMatrix() const; 
-	glm::mat4 getProjectionMatrix(const GLfloat bufferWidth, const GLfloat bufferHeight, const GLfloat nearPlane = 0.1f, const GLfloat farPlane = 1000.0f) const;
+	const glm::mat4 getViewMatrix() const; 
+	const glm::mat4 getProjectionMatrix(const GLfloat bufferWidth, const GLfloat bufferHeight, const GLfloat nearPlane = 0.1f, const GLfloat farPlane = 1000.0f) const;
+	const glm::vec3 getCameraPosition() const; 
 
 	void processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window);
 	void processMouseMovements(GLfloat xOffset, GLfloat yOffset, GLboolean constrainPitch = GL_TRUE);

@@ -169,6 +169,7 @@ void GraphicsEngine::run()
 				cubeShader.setUniformVector3("u_objectColor", 1.0f, 0.5f, 0.31f);
 				cubeShader.setUniformVector3("u_lightColor", static_cast<GLfloat>(lightCube.getLightColor().r), static_cast<GLfloat>(lightCube.getLightColor().g), static_cast<GLfloat>(lightCube.getLightColor().b));
 				cubeShader.setUniformVector3("u_lightPosition", lightCube.getLightPosition().x, lightCube.getLightPosition().y, lightCube.getLightPosition().z);
+				cubeShader.setUniformVector3("u_viewPosition", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 				cubeShader.setUniformMatrix4f("u_projection", projectionMatrix);
 				cubeShader.setUniformMatrix4f("u_view", viewMatrix);
 				cubeShader.setUniformMatrix4f("u_model", modelMatrix);

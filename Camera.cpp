@@ -18,15 +18,17 @@ Camera::Camera()
 	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 }
 
-glm::mat4 Camera::getViewMatrix() const
+const glm::mat4 Camera::getViewMatrix() const
 {
 	return glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp); // Gets the view matrix for the MVP matrix
 }
 
-glm::mat4 Camera::getProjectionMatrix(const GLfloat bufferWidth, const GLfloat bufferHeight, const GLfloat nearPlane, const GLfloat farPlane) const
+const glm::mat4 Camera::getProjectionMatrix(const GLfloat bufferWidth, const GLfloat bufferHeight, const GLfloat nearPlane, const GLfloat farPlane) const
 {
 	return glm::perspective(glm::radians(fieldOfView), static_cast<GLfloat>(bufferWidth / bufferHeight), nearPlane, farPlane); 
 }
+
+const glm::vec3 Camera::getCameraPosition() const { return cameraPosition; }
 
 
 void Camera::processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window)
