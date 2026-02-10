@@ -32,6 +32,8 @@ AmbientLight::AmbientLight(const glm::vec3& pLightColor, const GLfloat pAmbientS
 
 const glm::vec3 AmbientLight::getAmbient() const { return ambient; }
 
+const GLfloat AmbientLight::getAmbientStrength() const { return ambientStrength; }
+
 void AmbientLight::setAmbientColor(const GLfloat r, const GLfloat g, const GLfloat b)
 {
 	lightColor.r = r;

@@ -191,10 +191,10 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DiffuseLightShader.frag">
+    <None Include="lightCube.vert">
       <Filter>Resource Files\Shaders\Light Shader</Filter>
     </None>
-    <None Include="DiffuseLightShader.vert">
+    <None Include="lightCube.frag">
       <Filter>Resource Files\Shaders\Light Shader</Filter>
     </None>
   </ItemGroup>

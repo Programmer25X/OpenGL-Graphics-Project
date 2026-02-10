@@ -24,7 +24,7 @@ protected:
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
 	glm::vec3 lightPosition = glm::vec3(120.0f, 120.0f, 200.0f);
 	glm::vec3 lightDirection = glm::vec3(0, 0, 0);
-	GLfloat lightIntensity = 0.0f; 
+	GLfloat lightIntensity = 1.0f; 
 	
 	std::vector<GLfloat> verticies =
 	{
@@ -112,8 +112,11 @@ private:
 
 public:
 	const glm::vec3 getAmbient() const; 
+	const GLfloat getAmbientStrength() const; 
+
 	void setAmbientColor(const GLfloat r, const GLfloat g, const GLfloat b);
 	void setAmbientStrength(const GLfloat pAmbientStrength);
+
 };
 
 class DiffuseLight : public Lighting

@@ -148,12 +148,12 @@ void Shader::setUniformMatrix4f(const std::string& uniformName, const glm::mat4&
 	LOG_ERRORS(glUniformMatrix4fv(getUniformLocation(uniformName), 1, GL_FALSE, &matrix[0][0]));
 }
 
-void Shader::setVector3(const std::string& uniformName, const GLfloat parameterOne, const GLfloat parameterTwo, const GLfloat perameterThree)
+void Shader::setUniformVector3(const std::string& uniformName, const GLfloat parameterOne, const GLfloat parameterTwo, const GLfloat perameterThree)
 {
 	LOG_ERRORS(glUniform3f(getUniformLocation(uniformName), parameterOne, parameterTwo, perameterThree));
 }
 
-void Shader::setVector4(const std::string& uniformName, const GLfloat parameterOne, const GLfloat parameterTwo, const GLfloat parameterThree, const GLfloat parameterFour)
+void Shader::setUniformVector4(const std::string& uniformName, const GLfloat parameterOne, const GLfloat parameterTwo, const GLfloat parameterThree, const GLfloat parameterFour)
 {
 	LOG_ERRORS(glUniform4f(getUniformLocation(uniformName), parameterOne, parameterTwo, parameterThree, parameterFour));
 }
