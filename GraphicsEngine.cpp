@@ -41,7 +41,8 @@ void GraphicsEngine::run()
 {
 	LogoCube cube;
 	Lighting lightCube(glm::vec3(1.0f, 1.0f, 1.0f)); 
-	AmbientLight ambientLight(0.1f); 
+	AmbientLight ambientLight; 
+	SpecularLight specularLight;
 	
 
 	GLfloat aspectRatio = 0.0f; 
@@ -52,6 +53,7 @@ void GraphicsEngine::run()
 
 	ImVec4 sceneLightColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 	GLfloat sceneAmbientLightStrength = 0.1f;
+	GLint shininessValue = specularLight.getShininessValue(); 
 
 
 	GLint bufferWidth;
@@ -168,8 +170,12 @@ void GraphicsEngine::run()
 				cubeShader.useShader();
 				cubeShader.setUniformVector3("u_objectColor", 1.0f, 0.5f, 0.31f);
 				cubeShader.setUniformVector3("u_lightColor", static_cast<GLfloat>(lightCube.getLightColor().r), static_cast<GLfloat>(lightCube.getLightColor().g), static_cast<GLfloat>(lightCube.getLightColor().b));
+			
 				cubeShader.setUniformVector3("u_lightPosition", lightCube.getLightPosition().x, lightCube.getLightPosition().y, lightCube.getLightPosition().z);
+
+				cubeShader.setUniform1i("u_shininessValue", specularLight.getShininessValue());
 				cubeShader.setUniformVector3("u_viewPosition", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+
 				cubeShader.setUniformMatrix4f("u_projection", projectionMatrix);
 				cubeShader.setUniformMatrix4f("u_view", viewMatrix);
 				cubeShader.setUniformMatrix4f("u_model", modelMatrix);
@@ -193,10 +199,16 @@ void GraphicsEngine::run()
 					cubeShader.useShader();
 					ImGui::ColorEdit3("Light Colour", (float*)&sceneLightColor);
 					ImGui::SliderFloat("Light Intensity", (float*)&sceneAmbientLightStrength, 0.0f, 100.0f);
+					ImGui::SliderInt("Shininess Value", (int*)&shininessValue, 0, 32);
+
 					ambientLight.setAmbientStrength(sceneAmbientLightStrength); 
 					cubeShader.setUniform1f("u_ambientStrength", ambientLight.getAmbientStrength());
+
 					lightCube.setLightColor(sceneLightColor.x, sceneLightColor.y, sceneLightColor.z);
 					cubeShader.setUniformVector3("u_lightColor", sceneLightColor.x, sceneLightColor.y, sceneLightColor.z);
+
+					specularLight.setShininessValue(shininessValue);
+					cubeShader.setUniform1i("u_shininessValue", specularLight.getShininessValue()); 
 				}
 
 				ImGui::ColorEdit3("Clear Color", (float*)&clearColor); 

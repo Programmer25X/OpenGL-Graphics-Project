@@ -11,6 +11,7 @@ uniform vec3 u_lightColor;
 uniform float u_ambientStrength;
 uniform vec3 u_objectColor; 
 uniform vec3 u_viewPosition; 
+uniform int u_shininessValue;
 
 void main()
 {
@@ -27,7 +28,7 @@ void main()
     float specularStrength = 0.5;
     vec3 viewDirection = normalize(u_viewPosition - FragPos);
     vec3 reflectionDirection = reflect(-lightDirection, norm);
-    float spec = pow(max(dot(viewDirection, reflectionDirection), 0.0), 32);
+    float spec = pow(max(dot(viewDirection, reflectionDirection), 0.0), u_shininessValue);
     vec3 specular = specularStrength * spec * u_lightColor;
 
     vec3 result = (ambient + diffuse + specular) * u_objectColor;

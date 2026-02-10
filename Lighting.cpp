@@ -2,16 +2,31 @@
 
 // Base Light Class 
 
+// Base Light Class 
+
 Lighting::Lighting(const glm::vec3& pLightColor)
 {
-	lightColor = pLightColor; 
+	lightColor = pLightColor;
 }
 
 const glm::vec3 Lighting::getLightColor() const { return lightColor; }
 
+const glm::vec3 Lighting::getLightPosition() const { return lightPosition; }
+
+const glm::vec3 Lighting::getLightDirection() const { return lightDirection; }
+
+const GLfloat Lighting::getLightIntensity() const { return lightIntensity; }
+
 const std::vector<GLuint> Lighting::getIndices() const { return indices; }
 
 const std::vector<GLfloat> Lighting::getVerticies() const { return verticies; }
+
+void Lighting::setLightPosition(const GLfloat x, const GLfloat y, const GLfloat z)
+{
+	lightPosition.x = x;
+	lightDirection.y = y;
+	lightPosition.z = z;
+}
 
 void Lighting::setLightColor(const GLfloat r, const GLfloat g, const GLfloat b)
 {
@@ -57,14 +72,6 @@ DiffuseLight::DiffuseLight(const glm::vec3 diffuseColor)
 	lightColor = diffuseColor;
 }
 
-const glm::vec3 DiffuseLight::getLightPosition() const { return lightPosition; }
-
-const glm::vec3 DiffuseLight::getLightDirection() const { return lightDirection; }
-
-void DiffuseLight::setLightPosition(const GLfloat x, const GLfloat y, const GLfloat z)
-{
-	
-}
 
 
 // Specular Light Class 
