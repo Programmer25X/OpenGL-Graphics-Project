@@ -99,12 +99,15 @@ public:
 	const std::vector<GLuint> getIndices() const;
 	const std::vector<GLfloat> getVerticies() const; 
 
+	void setLightPosition(const GLfloat x, const GLfloat y, const GLfloat z);
+	void setLightColor(const GLfloat r, const GLfloat g, const GLfloat b);
+
 };
 
 class AmbientLight : public Lighting
 {
 public:
-	AmbientLight(const glm::vec3& pLightColor = glm::vec3(1.0f, 1.0f, 1.0f), const GLfloat pAmbientStrength = 0.1f);
+	AmbientLight(const GLfloat pAmbientStrength = 0.1f);
 
 private:
 	GLfloat ambientStrength = 0.0f;

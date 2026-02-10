@@ -40,8 +40,8 @@ GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 void GraphicsEngine::run()
 {
 	LogoCube cube;
-	Lighting lightCube; 
-	AmbientLight ambientLight(glm::vec3(0.0f, 1.0f, 0.0f), 0.1f); 
+	Lighting lightCube(glm::vec3(1.0f, 1.0f, 1.0f)); 
+	AmbientLight ambientLight(0.1f); 
 	
 
 	GLfloat aspectRatio = 0.0f; 
@@ -50,7 +50,7 @@ void GraphicsEngine::run()
 	ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
-	ImVec4 sceneAmbientLightColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	ImVec4 sceneLightColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 	GLfloat sceneAmbientLightStrength = 0.1f;
 
 
@@ -124,7 +124,6 @@ void GraphicsEngine::run()
 		LOG_ERRORS(VAO2.addBuffer(VBO2, layout2));
 
 
-		// =========================== MVP Pipeline ===================================================== //
 
 		engineWindow->setAspectRatio(bufferWidth, bufferHeight); 
 		const GLfloat halfBufferWidth = static_cast<GLfloat>(bufferWidth) * 0.5f / engineWindow->getAspectRatio();
@@ -132,20 +131,17 @@ void GraphicsEngine::run()
 		const GLfloat nearPlane = 0.1f;
 		const GLfloat farPlane = 1000.0f;
 
-		glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), static_cast<GLfloat>(bufferWidth) / static_cast<GLfloat>(bufferHeight), nearPlane, farPlane);
-		glm::mat4 viewMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-		glm::mat4 modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-		// =============================================================================================== // 
 
 		Shader cubeShader("basic_default.vert", "basic_default.frag");
 		Shader lightShader("lightCube.vert", "lightCube.frag"); 
 
-		Texture texture1("Logo.png"); 
-		texture1.bind(0); 
+		//Texture texture1("Logo.png"); 
+		//texture1.bind(0); 
 		cubeShader.useShader(); 
-		cubeShader.setUniform1i("texture1", 0);
+		// cubeShader.setUniform1i("texture1", 0);
+
 		cubeShader.setUniform1f("u_ambientStrength", ambientLight.getAmbientStrength()); 
+		cubeShader.setUniformVector3("u_objectColor", 1.0f, 0.5f, 0.31f);
 		cubeShader.setUniformVector3("u_lightColor", static_cast<GLfloat>(ambientLight.getAmbient().r), static_cast<GLfloat>(ambientLight.getAmbient().g), static_cast<GLfloat>(ambientLight.getAmbient().b));
 
 
@@ -158,18 +154,27 @@ void GraphicsEngine::run()
 			ImGui::NewFrame();
 
 			{
+				// =========================== MVP Pipeline ================================================================ //
+
 				glm::mat4 projectionMatrix = camera.getProjectionMatrix(static_cast<const GLfloat>(bufferWidth), static_cast<const GLfloat>(bufferHeight));
 				glm::mat4 viewMatrix = camera.getViewMatrix();
 				glm::mat4 modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 				modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
+				lightCube.setLightPosition(1.0f + sin(glfwGetTime()) * 2.0f, sin(glfwGetTime() / 2.0f) * 1.0f, lightCube.getLightPosition().z); 
+				
 
+				// =========================== Generating the main cube ===================================================== //
 				cubeShader.useShader();
+				cubeShader.setUniformVector3("u_objectColor", 1.0f, 0.5f, 0.31f);
+				cubeShader.setUniformVector3("u_lightColor", static_cast<GLfloat>(lightCube.getLightColor().r), static_cast<GLfloat>(lightCube.getLightColor().g), static_cast<GLfloat>(lightCube.getLightColor().b));
 				cubeShader.setUniformVector3("u_lightPosition", lightCube.getLightPosition().x, lightCube.getLightPosition().y, lightCube.getLightPosition().z);
 				cubeShader.setUniformMatrix4f("u_projection", projectionMatrix);
 				cubeShader.setUniformMatrix4f("u_view", viewMatrix);
 				cubeShader.setUniformMatrix4f("u_model", modelMatrix);
 				renderer.draw(VAO1, EBO1, cubeShader);
+
+				// =========================== Generating the light source ===================================================== //
 
 				lightShader.useShader();
 				lightShader.setUniformMatrix4f("u_projection", projectionMatrix);
@@ -185,11 +190,12 @@ void GraphicsEngine::run()
 				if (isAmbientLightingOn)
 				{
 					cubeShader.useShader();
-					ImGui::ColorEdit3("Ambient Light Colour", (float*)&sceneAmbientLightColor);
-					ImGui::SliderFloat("Ambient Light Intensity", (float*)&sceneAmbientLightStrength, 0.0f, 100.0f);
-					ambientLight.setAmbientColor(sceneAmbientLightColor.x, sceneAmbientLightColor.y, sceneAmbientLightColor.z);
+					ImGui::ColorEdit3("Light Colour", (float*)&sceneLightColor);
+					ImGui::SliderFloat("Light Intensity", (float*)&sceneAmbientLightStrength, 0.0f, 100.0f);
 					ambientLight.setAmbientStrength(sceneAmbientLightStrength); 
-					cubeShader.setUniformVector3("u_lightColor", static_cast<GLfloat>(ambientLight.getAmbient().r), static_cast<GLfloat>(ambientLight.getAmbient().g), static_cast<GLfloat>(ambientLight.getAmbient().b));
+					cubeShader.setUniform1f("u_ambientStrength", ambientLight.getAmbientStrength());
+					lightCube.setLightColor(sceneLightColor.x, sceneLightColor.y, sceneLightColor.z);
+					cubeShader.setUniformVector3("u_lightColor", sceneLightColor.x, sceneLightColor.y, sceneLightColor.z);
 				}
 
 				ImGui::ColorEdit3("Clear Color", (float*)&clearColor); 
