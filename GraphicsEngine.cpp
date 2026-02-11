@@ -49,8 +49,9 @@ void GraphicsEngine::run()
 
 
 	ImVec4 sceneLightColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-	GLfloat sceneAmbientLightStrength = 0.1f;
-	GLint shininessValue = lightCube.getShininessValue(); 
+	GLfloat sceneAmbientLightStrength = lightCube.getAmbientStrength();
+	GLfloat sceneDiffuseLightStrength = lightCube.getDiffuseStrength(); 
+	GLfloat shininessValue = lightCube.getShininessValue(); 
 
 
 	GLint bufferWidth;
@@ -139,10 +140,6 @@ void GraphicsEngine::run()
 		cubeShader.useShader(); 
 		// cubeShader.setUniform1i("texture1", 0);
 
-		cubeShader.setUniform1f("u_ambientStrength", lightCube.getAmbientStrength()); 
-		cubeShader.setUniformVector3("u_objectColor", 1.0f, 0.5f, 0.31f);
-		cubeShader.setUniformVector3("u_lightColor", lightCube.getAmbient().r, lightCube.getAmbient().g, lightCube.getAmbient().b);
-
 
 		while (!glfwWindowShouldClose(engineWindow->getWindow()))
 		{
@@ -160,22 +157,28 @@ void GraphicsEngine::run()
 				glm::mat4 modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 				modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
 
-				lightCube.setLightPosition(1.0f + sin(glfwGetTime()) * 2.0f, sin(glfwGetTime() / 2.0f) * 1.0f, lightCube.getLightPosition().z); 
-				
+				lightCube.setLightPosition(glm::vec3(1.0f + sin(glfwGetTime()) * 2.0f, sin(glfwGetTime() / 2.0f) * 1.0f, lightCube.getLightPosition().z));
+
 
 				// =========================== Generating the main cube ===================================================== //
-				cubeShader.useShader();
-				cubeShader.setUniformVector3("u_objectColor", 1.0f, 0.5f, 0.31f);
-				cubeShader.setUniformVector3("u_lightColor", static_cast<GLfloat>(lightCube.getLightColor().r), static_cast<GLfloat>(lightCube.getLightColor().g), static_cast<GLfloat>(lightCube.getLightColor().b));
-			
-				cubeShader.setUniformVector3("u_lightPosition", lightCube.getLightPosition().x, lightCube.getLightPosition().y, lightCube.getLightPosition().z);
 
-				cubeShader.setUniform1i("u_shininessValue", lightCube.getShininessValue());
+				cubeShader.useShader();
+				cubeShader.setUniformVector3("u_light.position", lightCube.getLightPosition().x, lightCube.getLightPosition().y, lightCube.getLightPosition().z);
 				cubeShader.setUniformVector3("u_viewPosition", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+				
+				cubeShader.setUniformVector3("u_light.ambient", lightCube.getAmbientColor().r, lightCube.getAmbientColor().g, lightCube.getAmbientColor().b);
+				cubeShader.setUniformVector3("u_light.diffuse", lightCube.getDiffuseColor().r, lightCube.getDiffuseColor().g, lightCube.getDiffuseColor().b);
+				cubeShader.setUniformVector3("u_light.specular", 1.0f, 1.0f, 1.0f);
+
+				cubeShader.setUniformVector3("u_material.ambient", 1.0f, 0.5f, 0.31f);
+				cubeShader.setUniformVector3("u_material.diffuse", 1.0f, 0.5f, 0.31f);
+				cubeShader.setUniformVector3("u_material.specular", 0.5f, 0.5f, 0.5f);
+				cubeShader.setUniform1f("u_material.shininess", 32.0f);
 
 				cubeShader.setUniformMatrix4f("u_projection", projectionMatrix);
 				cubeShader.setUniformMatrix4f("u_view", viewMatrix);
 				cubeShader.setUniformMatrix4f("u_model", modelMatrix);
+
 				renderer.draw(VAO1, EBO1, cubeShader);
 
 				// =========================== Generating the light source ===================================================== //
@@ -189,29 +192,33 @@ void GraphicsEngine::run()
 				lightShader.setUniformMatrix4f("u_model", modelMatrix);
 				renderer.draw(VAO2, EBO2, lightShader);
 
-				ImGui::Begin("Graphics Engine");     
+				ImGui::Begin("Graphics Engine");
 
-				if (isAmbientLightingOn)
-				{
+				{	
 					cubeShader.useShader();
+
 					ImGui::ColorEdit3("Light Colour", (float*)&sceneLightColor);
-					ImGui::SliderFloat("Light Intensity", (float*)&sceneAmbientLightStrength, 0.0f, 100.0f);
-					ImGui::SliderInt("Shininess Value", (int*)&shininessValue, 0, 32);
+					ImGui::SliderFloat("Ambient Light Intensity", (float*)&sceneAmbientLightStrength, 0.0f, 1.0f);
+					ImGui::SliderFloat("Diffuse Light Intensity", (float*)&sceneDiffuseLightStrength, 0.0f, 2.0f);
+					ImGui::SliderFloat("Shininess Value", (float*)&shininessValue, 0.0f, 32.0f);
+
+					lightCube.setLightColor(glm::vec3(sceneLightColor.x, sceneLightColor.y, sceneLightColor.z));
 
 					lightCube.setAmbientStrength(sceneAmbientLightStrength);
-					cubeShader.setUniform1f("u_ambientStrength", lightCube.getAmbientStrength());
+					lightCube.setAmbientColor();
+					cubeShader.setUniformVector3("u_light.ambient", lightCube.getAmbientColor().r, lightCube.getAmbientColor().g, lightCube.getAmbientColor().b);
 
-					lightCube.setLightColor(sceneLightColor.x, sceneLightColor.y, sceneLightColor.z);
-					cubeShader.setUniformVector3("u_lightColor", sceneLightColor.x, sceneLightColor.y, sceneLightColor.z);
+					lightCube.setDiffuseStrength(sceneDiffuseLightStrength);
+					lightCube.setDiffuseColor();
+					cubeShader.setUniformVector3("u_light.diffuse", lightCube.getDiffuseColor().r, lightCube.getDiffuseColor().g, lightCube.getDiffuseColor().b);
 
 					lightCube.setShininessValue(shininessValue);
-					cubeShader.setUniform1i("u_shininessValue", lightCube.getShininessValue());
+					// cubeShader.setUniform1f("u_material.shininess", lightCube.getShininessValue()); 
 				}
 
 				ImGui::ColorEdit3("Clear Color", (float*)&clearColor); 
 				LOG_ERRORS(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w)); 
 
-				ImGui::Checkbox("Ambient Lighting", &isAmbientLightingOn);
 				ImGui::Checkbox("Fill Polygons", &fillPolygons);
 
 				if (fillPolygons)
