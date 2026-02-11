@@ -104,9 +104,9 @@ void GraphicsEngine::run()
 		ImGui::StyleColorsDark();
  
 		VertexArrayObject VAO1;
-		VertexBufferObject VBO1(cube.verticies.data(), cube.verticies.size());
+		VertexBufferObject VBO1(cube.getVerticies().data(), cube.getVerticies().size());
 		VertexBufferLayout layout1;
-		ElementBufferObject EBO1(cube.indices.data(), cube.indices.size());
+		ElementBufferObject EBO1(cube.getIndices().data(), cube.getIndices().size());
 
 		VertexArrayObject VAO2;
 		VertexBufferObject VBO2(lightCube.getVerticies().data(), lightCube.getVerticies().size());

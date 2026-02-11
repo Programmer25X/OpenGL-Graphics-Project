@@ -17,7 +17,7 @@ public:
 
 class LogoCube : public Object
 {
-public:
+private:
 	std::vector<GLfloat> verticies =
 	{
 		// Coordinates			  Normals	           Texture Coordinates 
