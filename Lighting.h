@@ -17,14 +17,20 @@ class Lighting
 {
 
 public:
-	Lighting(const glm::vec3& pLightColor = glm::vec3(1.0f, 1.0f, 1.0f));
+	Lighting(const glm::vec3& pLightColor = glm::vec3(1.0f, 1.0f, 1.0f), const GLfloat pAmbientStrength = 0.1f, const GLint pShininessValue = 32);
 
 protected:
 
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	
+	GLfloat ambientStrength = 0.0f;
+	glm::vec3 ambient = glm::vec3(0, 0, 0);
+
 	glm::vec3 lightPosition = glm::vec3(120.0f, 120.0f, 200.0f);
 	glm::vec3 lightDirection = glm::vec3(0, 0, 0);
-	GLfloat lightIntensity = 1.0f;
+
+	GLint shininessValue = 0;
+
 	
 	std::vector<GLfloat> verticies =
 	{
@@ -95,56 +101,20 @@ public:
 	const glm::vec3 getLightColor() const;
 	const glm::vec3 getLightPosition() const;
 	const glm::vec3 getLightDirection() const;
-	const GLfloat getLightIntensity() const;
 	const std::vector<GLuint> getIndices() const;
 	const std::vector<GLfloat> getVerticies() const;
 
-	void setLightPosition(const GLfloat x, const GLfloat y, const GLfloat z);
-	void setLightColor(const GLfloat r, const GLfloat g, const GLfloat b);
-
-};
-
-class AmbientLight : public Lighting
-{
-public:
-	AmbientLight(const glm::vec3 ambientColor = glm::vec3(1.0f, 1.0f, 1.0f), const GLfloat pAmbientStrength = 0.1f);
-
-private:
-	GLfloat ambientStrength = 0.0f;
-	glm::vec3 ambient = glm::vec3(0, 0, 0); 
-
-public:
-	const glm::vec3 getAmbient() const; 
-	const GLfloat getAmbientStrength() const; 
+	const glm::vec3 getAmbient() const;
+	const GLfloat getAmbientStrength() const;
 
 	void setAmbientColor(const GLfloat r, const GLfloat g, const GLfloat b);
 	void setAmbientStrength(const GLfloat pAmbientStrength);
 
-};
-
-
-
-
-class DiffuseLight : public Lighting
-{
-public:
-	DiffuseLight(const glm::vec3 diffuseColor = glm::vec3(1.0f, 1.0f, 1.0f));
-};
-
-
-
-
-class SpecularLight : public Lighting
-{
-public:
-	SpecularLight(GLint pShininessValue = 32);
-
-private:
-	GLint shininessValue = 0;
-
-public:
+	void setLightPosition(const GLfloat x, const GLfloat y, const GLfloat z);
+	void setLightColor(const GLfloat r, const GLfloat g, const GLfloat b);
 	const GLint getShininessValue() const;
 	void setShininessValue(const GLint pShininessValue);
+
 };
 
 #endif

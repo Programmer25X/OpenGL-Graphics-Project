@@ -40,10 +40,7 @@ GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 void GraphicsEngine::run()
 {
 	LogoCube cube;
-	Lighting lightCube(glm::vec3(1.0f, 1.0f, 1.0f)); 
-	AmbientLight ambientLight; 
-	SpecularLight specularLight;
-	
+	Lighting lightCube(glm::vec3(1.0f, 1.0f, 1.0f)); 	
 
 	GLfloat aspectRatio = 0.0f; 
 	bool isAmbientLightingOn = true;
@@ -53,7 +50,7 @@ void GraphicsEngine::run()
 
 	ImVec4 sceneLightColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 	GLfloat sceneAmbientLightStrength = 0.1f;
-	GLint shininessValue = specularLight.getShininessValue(); 
+	GLint shininessValue = lightCube.getShininessValue(); 
 
 
 	GLint bufferWidth;
@@ -142,9 +139,9 @@ void GraphicsEngine::run()
 		cubeShader.useShader(); 
 		// cubeShader.setUniform1i("texture1", 0);
 
-		cubeShader.setUniform1f("u_ambientStrength", ambientLight.getAmbientStrength()); 
+		cubeShader.setUniform1f("u_ambientStrength", lightCube.getAmbientStrength()); 
 		cubeShader.setUniformVector3("u_objectColor", 1.0f, 0.5f, 0.31f);
-		cubeShader.setUniformVector3("u_lightColor", static_cast<GLfloat>(ambientLight.getAmbient().r), static_cast<GLfloat>(ambientLight.getAmbient().g), static_cast<GLfloat>(ambientLight.getAmbient().b));
+		cubeShader.setUniformVector3("u_lightColor", lightCube.getAmbient().r, lightCube.getAmbient().g, lightCube.getAmbient().b);
 
 
 		while (!glfwWindowShouldClose(engineWindow->getWindow()))
@@ -173,7 +170,7 @@ void GraphicsEngine::run()
 			
 				cubeShader.setUniformVector3("u_lightPosition", lightCube.getLightPosition().x, lightCube.getLightPosition().y, lightCube.getLightPosition().z);
 
-				cubeShader.setUniform1i("u_shininessValue", specularLight.getShininessValue());
+				cubeShader.setUniform1i("u_shininessValue", lightCube.getShininessValue());
 				cubeShader.setUniformVector3("u_viewPosition", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 
 				cubeShader.setUniformMatrix4f("u_projection", projectionMatrix);
@@ -201,14 +198,14 @@ void GraphicsEngine::run()
 					ImGui::SliderFloat("Light Intensity", (float*)&sceneAmbientLightStrength, 0.0f, 100.0f);
 					ImGui::SliderInt("Shininess Value", (int*)&shininessValue, 0, 32);
 
-					ambientLight.setAmbientStrength(sceneAmbientLightStrength); 
-					cubeShader.setUniform1f("u_ambientStrength", ambientLight.getAmbientStrength());
+					lightCube.setAmbientStrength(sceneAmbientLightStrength);
+					cubeShader.setUniform1f("u_ambientStrength", lightCube.getAmbientStrength());
 
 					lightCube.setLightColor(sceneLightColor.x, sceneLightColor.y, sceneLightColor.z);
 					cubeShader.setUniformVector3("u_lightColor", sceneLightColor.x, sceneLightColor.y, sceneLightColor.z);
 
-					specularLight.setShininessValue(shininessValue);
-					cubeShader.setUniform1i("u_shininessValue", specularLight.getShininessValue()); 
+					lightCube.setShininessValue(shininessValue);
+					cubeShader.setUniform1i("u_shininessValue", lightCube.getShininessValue());
 				}
 
 				ImGui::ColorEdit3("Clear Color", (float*)&clearColor); 

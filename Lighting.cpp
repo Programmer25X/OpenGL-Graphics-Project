@@ -1,12 +1,11 @@
 #include "Lighting.h"
 
-// Base Light Class 
 
-// Base Light Class 
-
-Lighting::Lighting(const glm::vec3& pLightColor)
+Lighting::Lighting(const glm::vec3& pLightColor, const GLfloat pAmbientStrength, const GLint pShininessValue)
 {
 	lightColor = pLightColor;
+	ambientStrength = pAmbientStrength;
+	shininessValue = pShininessValue;
 }
 
 const glm::vec3 Lighting::getLightColor() const { return lightColor; }
@@ -14,8 +13,6 @@ const glm::vec3 Lighting::getLightColor() const { return lightColor; }
 const glm::vec3 Lighting::getLightPosition() const { return lightPosition; }
 
 const glm::vec3 Lighting::getLightDirection() const { return lightDirection; }
-
-const GLfloat Lighting::getLightIntensity() const { return lightIntensity; }
 
 const std::vector<GLuint> Lighting::getIndices() const { return indices; }
 
@@ -36,20 +33,11 @@ void Lighting::setLightColor(const GLfloat r, const GLfloat g, const GLfloat b)
 }
 
 
+const glm::vec3 Lighting::getAmbient() const { return ambient; }
 
-// Ambient Light Class 
+const GLfloat Lighting::getAmbientStrength() const { return ambientStrength; }
 
-AmbientLight::AmbientLight(const glm::vec3 ambientColor, const GLfloat pAmbientStrength)
-{
-	ambientStrength = pAmbientStrength;
-	ambient = ambientStrength * lightColor; 
-}
-
-const glm::vec3 AmbientLight::getAmbient() const { return ambient; }
-
-const GLfloat AmbientLight::getAmbientStrength() const { return ambientStrength; }
-
-void AmbientLight::setAmbientColor(const GLfloat r, const GLfloat g, const GLfloat b)
+void Lighting::setAmbientColor(const GLfloat r, const GLfloat g, const GLfloat b)
 {
 	lightColor.r = r;
 	lightColor.g = g;
@@ -57,33 +45,15 @@ void AmbientLight::setAmbientColor(const GLfloat r, const GLfloat g, const GLflo
 	ambient = ambientStrength * lightColor;
 }
 
-void AmbientLight::setAmbientStrength(const GLfloat pAmbientStrength)
+void Lighting::setAmbientStrength(const GLfloat pAmbientStrength)
 {
 	ambientStrength = pAmbientStrength;
 	ambient = ambientStrength * lightColor;
 }
 
+const GLint Lighting::getShininessValue() const { return shininessValue; }
 
-// Diffuse Light Class 
-
-
-DiffuseLight::DiffuseLight(const glm::vec3 diffuseColor)
-{
-	lightColor = diffuseColor;
-}
-
-
-
-// Specular Light Class 
-
-SpecularLight::SpecularLight(GLint pShininessValue)
-{
-	shininessValue = pShininessValue;
-}
-
-const GLint SpecularLight::getShininessValue() const { return shininessValue; }
-
-void SpecularLight::setShininessValue(const GLint pShininessValue)
+void Lighting::setShininessValue(const GLint pShininessValue)
 {
 	shininessValue = pShininessValue;
 }
