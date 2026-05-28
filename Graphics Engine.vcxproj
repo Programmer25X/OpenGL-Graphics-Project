@@ -187,6 +187,9 @@
     <Text Include="basic_default.frag" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="container2.png" />
+    <Image Include="container2_specular.png" />
+    <Image Include="matrix.jpg" />
     <Image Include="Textures\Logo.png" />
   </ItemGroup>
   <ItemGroup>

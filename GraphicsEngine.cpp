@@ -135,10 +135,19 @@ void GraphicsEngine::run()
 		Shader cubeShader("basic_default.vert", "basic_default.frag");
 		Shader lightShader("lightCube.vert", "lightCube.frag"); 
 
-		Texture texture1("Logo.png"); 
+		Texture texture1("container2.png");
+		Texture texture2("container2_specular.png");
+		Texture texture3("matrix.jpg");
 		texture1.bind(0); 
+		texture2.bind(1);
+		texture3.bind(2);
 		cubeShader.useShader(); 
 		cubeShader.setUniform1i("u_material.diffuse", 0);
+		cubeShader.setUniform1i("u_material.emission", 1);
+		cubeShader.setUniform1i("u_material.specular", 2);
+
+
+
 
 
 		while (!glfwWindowShouldClose(engineWindow->getWindow()))
