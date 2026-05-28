@@ -184,13 +184,17 @@ void GraphicsEngine::run()
 				// =========================== Generating the light source ===================================================== //
 
 				lightShader.useShader();
+
 				lightShader.setUniformMatrix4f("u_projection", projectionMatrix);
 				lightShader.setUniformMatrix4f("u_view", viewMatrix);
 				modelMatrix = glm::mat4(1.0f);
 				modelMatrix = glm::translate(modelMatrix, lightCube.getLightPosition());
 				modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f)); // a smaller cube
 				lightShader.setUniformMatrix4f("u_model", modelMatrix);
+
 				renderer.draw(VAO2, EBO2, lightShader);
+
+				// =========================== Real-time updates and ImGUI ===================================================== //
 
 				ImGui::Begin("Graphics Engine");
 
@@ -212,8 +216,9 @@ void GraphicsEngine::run()
 					lightCube.setDiffuseColor();
 					cubeShader.setUniformVector3("u_light.diffuse", lightCube.getDiffuseColor().r, lightCube.getDiffuseColor().g, lightCube.getDiffuseColor().b);
 
+					// Bugged? 
 					lightCube.setShininessValue(shininessValue);
-					// cubeShader.setUniform1f("u_material.shininess", lightCube.getShininessValue()); 
+					cubeShader.setUniform1f("u_material.shininess", lightCube.getShininessValue()); 
 				}
 
 				ImGui::ColorEdit3("Clear Color", (float*)&clearColor); 

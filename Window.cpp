@@ -11,7 +11,7 @@ EngineWindow::EngineWindow(const std::string& windowTitle)
 		return;
 	}
 
-	windowPtr = glfwCreateWindow(screenWidth, screenHeight, windowTitle.c_str(), glfwGetPrimaryMonitor(), NULL);
+	windowPtr = glfwCreateWindow(screenWidth, screenHeight, windowTitle.c_str(), NULL, NULL);
 }
 
 GLFWwindow* EngineWindow::getWindow() const { return windowPtr; }
