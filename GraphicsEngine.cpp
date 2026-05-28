@@ -173,7 +173,7 @@ void GraphicsEngine::run()
 				cubeShader.setUniformVector3("u_material.ambient", 1.0f, 0.5f, 0.31f);
 				cubeShader.setUniformVector3("u_material.diffuse", 1.0f, 0.5f, 0.31f);
 				cubeShader.setUniformVector3("u_material.specular", 0.5f, 0.5f, 0.5f);
-				cubeShader.setUniform1f("u_material.shininess", 32.0f);
+				cubeShader.setUniform1f("u_material.shininess", static_cast<GLfloat>(lightCube.getShininessValue()));
 
 				cubeShader.setUniformMatrix4f("u_projection", projectionMatrix);
 				cubeShader.setUniformMatrix4f("u_view", viewMatrix);
@@ -204,7 +204,7 @@ void GraphicsEngine::run()
 					ImGui::ColorEdit3("Light Colour", (float*)&sceneLightColor);
 					ImGui::SliderFloat("Ambient Light Intensity", (float*)&sceneAmbientLightStrength, 0.0f, 1.0f);
 					ImGui::SliderFloat("Diffuse Light Intensity", (float*)&sceneDiffuseLightStrength, 0.0f, 2.0f);
-					ImGui::SliderFloat("Shininess Value", (float*)&shininessValue, 0.0f, 32.0f);
+					ImGui::SliderFloat("Shininess Value", (float*)&shininessValue, 0.01f, 32.0f);
 
 					lightCube.setLightColor(glm::vec3(sceneLightColor.x, sceneLightColor.y, sceneLightColor.z));
 
@@ -216,7 +216,6 @@ void GraphicsEngine::run()
 					lightCube.setDiffuseColor();
 					cubeShader.setUniformVector3("u_light.diffuse", lightCube.getDiffuseColor().r, lightCube.getDiffuseColor().g, lightCube.getDiffuseColor().b);
 
-					// Bugged? 
 					lightCube.setShininessValue(shininessValue);
 					cubeShader.setUniform1f("u_material.shininess", lightCube.getShininessValue()); 
 				}
