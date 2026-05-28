@@ -6,8 +6,7 @@ layout(location = 0) out vec4 FragColor;
 // Material properties of a surface
 struct Material
 {
-    vec3 ambient;
-    vec3 diffuse;
+    sampler2D diffuse;
     vec3 specular;
     float shininess;
 };
@@ -31,13 +30,13 @@ uniform Light u_light;
 void main()
 {
     // Ambient Lighting 
-    vec3 ambient = u_material.ambient * u_light.ambient;
+    vec3 ambient = u_light.ambient * texture(u_material.diffuse, v_TexCoord).rgb;
 
     // Diffuse Lighting 
     vec3 norm = normalize(v_normal);
     vec3 lightDirection = normalize(u_light.position - FragPos);
     float diff = max(dot(norm, lightDirection), 0.0);
-    vec3 diffuse = (diff * u_material.diffuse) * u_light.diffuse;
+    vec3 diffuse = u_light.diffuse * diff * texture(u_material.diffuse, v_TexCoord).rgb;
 
     // Specular Lighting 
     vec3 viewDirection = normalize(u_viewPosition - FragPos);

@@ -135,10 +135,10 @@ void GraphicsEngine::run()
 		Shader cubeShader("basic_default.vert", "basic_default.frag");
 		Shader lightShader("lightCube.vert", "lightCube.frag"); 
 
-		//Texture texture1("Logo.png"); 
-		//texture1.bind(0); 
+		Texture texture1("Logo.png"); 
+		texture1.bind(0); 
 		cubeShader.useShader(); 
-		// cubeShader.setUniform1i("texture1", 0);
+		cubeShader.setUniform1i("u_material.diffuse", 0);
 
 
 		while (!glfwWindowShouldClose(engineWindow->getWindow()))
@@ -170,9 +170,10 @@ void GraphicsEngine::run()
 				cubeShader.setUniformVector3("u_light.diffuse", lightCube.getDiffuseColor().r, lightCube.getDiffuseColor().g, lightCube.getDiffuseColor().b);
 				cubeShader.setUniformVector3("u_light.specular", 1.0f, 1.0f, 1.0f);
 
-				cubeShader.setUniformVector3("u_material.ambient", 1.0f, 0.5f, 0.31f);
-				cubeShader.setUniformVector3("u_material.diffuse", 1.0f, 0.5f, 0.31f);
-				cubeShader.setUniformVector3("u_material.specular", 0.5f, 0.5f, 0.5f);
+				// cubeShader.setUniformVector3("u_material.ambient", 1.0f, 0.5f, 0.31f);
+				// cubeShader.setUniformVector3("u_material.diffuse", 1.0f, 0.5f, 0.31f);
+				// cubeShader.setUniformVector3("u_material.specular", 0.5f, 0.5f, 0.5f);
+
 				cubeShader.setUniform1f("u_material.shininess", static_cast<GLfloat>(lightCube.getShininessValue()));
 
 				cubeShader.setUniformMatrix4f("u_projection", projectionMatrix);
