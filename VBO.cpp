@@ -3,6 +3,10 @@
 
 #include <ctype.h>
 
+VertexBufferObject::VertexBufferObject()
+{
+}
+
 VertexBufferObject::VertexBufferObject(const void* vertices, GLsizeiptr size)
 {
 	LOG_ERRORS(glGenBuffers(1, &id));

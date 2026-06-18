@@ -9,6 +9,7 @@ class ElementBufferObject
 {
 
 public:
+	ElementBufferObject();
 	ElementBufferObject(const GLuint* indices, const GLuint count); 
 	~ElementBufferObject();
 

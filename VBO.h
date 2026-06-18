@@ -8,6 +8,7 @@
 class VertexBufferObject
 {
 public:
+	VertexBufferObject(); 
 	VertexBufferObject(const void* vertices, GLsizeiptr size);
 	~VertexBufferObject(); 
 

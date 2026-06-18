@@ -172,7 +172,7 @@ void GraphicsEngine::run()
 				// =========================== Generating the main cube ===================================================== //
 
 				cubeShader.useShader();
-				cubeShader.setUniformVector3("u_light.position", lightCube.getLightPosition().x, lightCube.getLightPosition().y, lightCube.getLightPosition().z);
+				cubeShader.setUniformVector3("u_light.direction", lightCube.getLightPosition().x, lightCube.getLightPosition().y, lightCube.getLightPosition().z);
 				cubeShader.setUniformVector3("u_viewPosition", camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
 				
 				cubeShader.setUniformVector3("u_light.ambient", lightCube.getAmbientColor().r, lightCube.getAmbientColor().g, lightCube.getAmbientColor().b);

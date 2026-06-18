@@ -1,6 +1,10 @@
 #include "EBO.h"
 #include "Renderer.h"
 
+ElementBufferObject::ElementBufferObject()
+{
+}
+
 ElementBufferObject::ElementBufferObject(const GLuint* indices, const GLuint count)
 {
 	elementCount = count;
