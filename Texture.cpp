@@ -47,6 +47,16 @@ Texture::~Texture()
 	LOG_ERRORS(glDeleteTextures(1, &id)); 
 }
 
+const std::string Texture::getType() const
+{
+	return type;
+}
+
+const GLuint Texture::getId() const
+{
+	return id; 
+}
+
 void Texture::bind(GLuint slot) const
 {
 	LOG_ERRORS(glActiveTexture(GL_TEXTURE0 + slot)); 

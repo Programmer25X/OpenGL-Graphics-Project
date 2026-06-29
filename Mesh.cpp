@@ -4,14 +4,16 @@
 Mesh::Mesh(std::vector<Vertex>& pVerticies, std::vector<GLuint>& pIndicies, std::vector<Texture>& pTextures)
 {
 	verticies = pVerticies;
-	indicies = pIndicies;
+	indices = pIndicies;
 	textures = pTextures; 
+
+	SetupMesh();
 }
 
 void Mesh::SetupMesh()
 {
 	VBO = new VertexBufferObject(verticies.data(), verticies.size());
-	EBO = new ElementBufferObject(indicies.data(), indicies.size());
+	EBO = new ElementBufferObject(indices.data(), indices.size());
 
 	VBO->bind();
 	EBO->bind();
@@ -24,11 +26,36 @@ void Mesh::SetupMesh()
 	LOG_ERRORS(VAO.addBuffer(*VBO, vertexLayout));
 
 
-
 }
 
-void Mesh::DrawModel(Shader& shader)
+void Mesh::DrawModel(const VertexArrayObject& VAO, const ElementBufferObject& EBO, Shader& shader)
 {
+	GLuint diffuseNr = 1;
+	GLuint specularNr = 1;
 
+	for (GLuint i = 0; i < textures.size(); i++)
+	{
+		LOG_ERRORS(glActiveTexture(GL_TEXTURE0 + i));
 
+		std::string number = "";
+		std::string name = textures[i].getType();
+
+		if (name == "texture_diffuse")
+		{
+			number = std::to_string(diffuseNr++);
+		}
+		else if (name == "texture_specular")
+		{
+			number = std::to_string(specularNr++);
+		}
+
+		shader.setUniform1i(("u_material " + name + number).c_str(), i);
+		glBindTexture(GL_TEXTURE_2D, textures[i].getId());
+	}
+
+	glActiveTexture(GL_TEXTURE0);
+
+	LOG_ERRORS(VAO.bind());
+	LOG_ERRORS(glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0));
+	LOG_ERRORS(VAO.unbind()); 
 }

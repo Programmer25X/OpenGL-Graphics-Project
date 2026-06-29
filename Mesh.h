@@ -21,7 +21,7 @@ class Mesh
 {
 private:
 	std::vector<Vertex> verticies;
-	std::vector<GLuint> indicies;
+	std::vector<GLuint> indices;
 	std::vector<Texture> textures;
 
 	VertexArrayObject VAO; 
@@ -31,10 +31,10 @@ private:
 public:
 	Mesh(std::vector<Vertex> &pVerticies, std::vector<GLuint> &pIndicies, std::vector<Texture> &pTextures);
 	void SetupMesh();
-	void DrawModel(Shader& shader);
+	void DrawModel(const VertexArrayObject& VAO, const ElementBufferObject& EBO, Shader& shader);
 
 	const std::vector<Vertex> GetVerticies() const { return verticies; }
-	const std::vector<GLuint> GetIndicies() const { return indicies; }
+	const std::vector<GLuint> GetIndicies() const { return indices; }
 	const std::vector<Texture> GetTexture() const { return textures; }
 	const VertexArrayObject GetVAO() const { return VAO; }
 	const VertexBufferObject* GetVBO() const { return VBO; }
