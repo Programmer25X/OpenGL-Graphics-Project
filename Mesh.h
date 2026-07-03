@@ -31,7 +31,7 @@ private:
 public:
 	Mesh(std::vector<Vertex> &pVerticies, std::vector<GLuint> &pIndicies, std::vector<Texture> &pTextures);
 	void SetupMesh();
-	void DrawModel(const VertexArrayObject& VAO, const ElementBufferObject& EBO, Shader& shader);
+	void drawModel(const VertexArrayObject& VAO, const ElementBufferObject& EBO, Shader& shader);
 
 	const std::vector<Vertex> GetVerticies() const { return verticies; }
 	const std::vector<GLuint> GetIndicies() const { return indices; }

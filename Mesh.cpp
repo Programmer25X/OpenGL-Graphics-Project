@@ -28,10 +28,12 @@ void Mesh::SetupMesh()
 
 }
 
-void Mesh::DrawModel(const VertexArrayObject& VAO, const ElementBufferObject& EBO, Shader& shader)
+void Mesh::drawModel(const VertexArrayObject& VAO, const ElementBufferObject& EBO, Shader& shader)
 {
 	GLuint diffuseNr = 1;
 	GLuint specularNr = 1;
+	GLuint normalNr = 1;
+	GLuint heightNr = 1;
 
 	for (GLuint i = 0; i < textures.size(); i++)
 	{
@@ -47,6 +49,14 @@ void Mesh::DrawModel(const VertexArrayObject& VAO, const ElementBufferObject& EB
 		else if (name == "texture_specular")
 		{
 			number = std::to_string(specularNr++);
+		}
+		else if (name == "texture_normal")
+		{
+			number = std::to_string(normalNr++);
+		}
+		else if (name == "texture_height")
+		{
+			number = std::to_string(heightNr++);
 		}
 
 		shader.setUniform1i(("u_material " + name + number).c_str(), i);

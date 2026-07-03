@@ -75,7 +75,7 @@
     <LibraryPath>C:\OpenGL Graphics Engine C++\Graphics Engine\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\OpenGL Graphics Engine C++\Graphics Engine\Libraries\include;$(IncludePath)</IncludePath>
+    <IncludePath>C:\OpenGL Graphics Engine C++\Graphics Engine\Libraries\include;C:\GitHub Portfolio\C++ OpenGL Graphics Engine\OpenGL-Graphics-Engine\Libraries\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\OpenGL Graphics Engine C++\Graphics Engine\Libraries\lib;C:\GitHub Portfolio\C++ OpenGL Graphics Engine\OpenGL-Graphics-Engine\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
