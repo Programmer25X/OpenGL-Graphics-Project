@@ -3,7 +3,8 @@
 #include <iostream>
 #include <format>
 
-void Model::draw(const VertexArrayObject& VAO, const ElementBufferObject& EBO, Shader& shader)
+/*
+* void Model::draw(const VertexArrayObject& VAO, const ElementBufferObject& EBO, Shader& shader)
 {
     for (GLuint i = 0; i < meshes.size(); i++)
     {
@@ -107,5 +108,8 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* material, aiTexture
 {
     return std::vector<Texture>();
 }
+* 
+*/
+
 
 

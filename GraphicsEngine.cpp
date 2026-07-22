@@ -45,6 +45,7 @@ void GraphicsEngine::run()
 	GLfloat aspectRatio = 0.0f; 
 	bool isAmbientLightingOn = true;
 	bool fillPolygons = true;
+	bool renderMultipleCubes = true;
 	ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
@@ -124,30 +125,38 @@ void GraphicsEngine::run()
 		LOG_ERRORS(VAO2.addBuffer(VBO2, layout2));
 
 
-
 		engineWindow->setAspectRatio(bufferWidth, bufferHeight); 
-		const GLfloat halfBufferWidth = static_cast<GLfloat>(bufferWidth) * 0.5f / engineWindow->getAspectRatio();
-		const GLfloat halfBufferHeight = static_cast<GLfloat>(bufferHeight) * 0.5f / engineWindow->getAspectRatio();
-		const GLfloat nearPlane = 0.1f;
-		const GLfloat farPlane = 1000.0f;
+		const GLfloat HALF_BUFFER_WIDTH = static_cast<GLfloat>(bufferWidth) * 0.5f / engineWindow->getAspectRatio();
+		const GLfloat HALF_BUFFER_HEIGHT = static_cast<GLfloat>(bufferHeight) * 0.5f / engineWindow->getAspectRatio();
+		const GLfloat NEAR_PLANE = 0.1f;
+		const GLfloat FAR_PLANE = 10000.0f;
+
+
+
+	glm::vec3 cubePositions[] = {
+		glm::vec3(0.0f,  0.0f,  0.0f),
+		glm::vec3(2.0f,  5.0f, -15.0f),
+		glm::vec3(-1.5f, -2.2f, -2.5f),
+		glm::vec3(-3.8f, -2.0f, -12.3f),
+		glm::vec3(2.4f, -0.4f, -3.5f),
+		glm::vec3(-1.7f,  3.0f, -7.5f),
+		glm::vec3(1.3f, -2.0f, -2.5f),
+		glm::vec3(1.5f,  2.0f, -2.5f),
+		glm::vec3(1.5f,  0.2f, -1.5f),
+		glm::vec3(-1.3f,  1.0f, -1.5f) };
+
 
 
 		Shader cubeShader("basic_default.vert", "basic_default.frag");
 		Shader lightShader("lightCube.vert", "lightCube.frag"); 
 
-		Texture texture1("container2.png");
+		Texture texture1("container2.png"); 
 		Texture texture2("container2_specular.png");
-		Texture texture3("matrix.jpg");
 		texture1.bind(0); 
 		texture2.bind(1);
-		texture3.bind(2);
 		cubeShader.useShader(); 
 		cubeShader.setUniform1i("u_material.diffuse", 0);
-		cubeShader.setUniform1i("u_material.emission", 1);
-		cubeShader.setUniform1i("u_material.specular", 2);
-
-
-
+		cubeShader.setUniform1i("u_material.specular", 1);
 
 
 		while (!glfwWindowShouldClose(engineWindow->getWindow()))
@@ -163,8 +172,7 @@ void GraphicsEngine::run()
 
 				glm::mat4 projectionMatrix = camera.getProjectionMatrix(static_cast<const GLfloat>(bufferWidth), static_cast<const GLfloat>(bufferHeight));
 				glm::mat4 viewMatrix = camera.getViewMatrix();
-				glm::mat4 modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-				modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+				glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 				lightCube.setLightPosition(glm::vec3(1.0f + sin(glfwGetTime()) * 2.0f, sin(glfwGetTime() / 2.0f) * 1.0f, lightCube.getLightPosition().z));
 
@@ -179,17 +187,37 @@ void GraphicsEngine::run()
 				cubeShader.setUniformVector3("u_light.diffuse", lightCube.getDiffuseColor().r, lightCube.getDiffuseColor().g, lightCube.getDiffuseColor().b);
 				cubeShader.setUniformVector3("u_light.specular", 1.0f, 1.0f, 1.0f);
 
-				// cubeShader.setUniformVector3("u_material.ambient", 1.0f, 0.5f, 0.31f);
-				// cubeShader.setUniformVector3("u_material.diffuse", 1.0f, 0.5f, 0.31f);
-				// cubeShader.setUniformVector3("u_material.specular", 0.5f, 0.5f, 0.5f);
-
 				cubeShader.setUniform1f("u_material.shininess", static_cast<GLfloat>(lightCube.getShininessValue()));
 
 				cubeShader.setUniformMatrix4f("u_projection", projectionMatrix);
 				cubeShader.setUniformMatrix4f("u_view", viewMatrix);
 				cubeShader.setUniformMatrix4f("u_model", modelMatrix);
 
-				renderer.draw(VAO1, EBO1, cubeShader);
+
+				if (renderMultipleCubes)
+				{
+					for (unsigned int i = 0; i < 10; i++)
+					{
+						modelMatrix = glm::mat4(1.0f);
+						modelMatrix = glm::translate(modelMatrix, cubePositions[i] * 250.0f);
+						float angle = 20.0f * i;
+						modelMatrix = glm::rotate(modelMatrix, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+						modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+						cubeShader.setUniformMatrix4f("u_model", modelMatrix);
+
+						renderer.draw(VAO1, EBO1, cubeShader);
+					}
+				}
+				else
+				{
+					modelMatrix = glm::mat4(1.0f);
+					modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+					modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+					cubeShader.setUniformMatrix4f("u_model", modelMatrix);
+ 
+					renderer.draw(VAO1, EBO1, cubeShader);
+				}
+
 
 				// =========================== Generating the light source ===================================================== //
 
@@ -200,6 +228,7 @@ void GraphicsEngine::run()
 				modelMatrix = glm::mat4(1.0f);
 				modelMatrix = glm::translate(modelMatrix, lightCube.getLightPosition());
 				modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f)); // a smaller cube
+
 				lightShader.setUniformMatrix4f("u_model", modelMatrix);
 
 				renderer.draw(VAO2, EBO2, lightShader);
@@ -234,6 +263,7 @@ void GraphicsEngine::run()
 				LOG_ERRORS(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w)); 
 
 				ImGui::Checkbox("Fill Polygons", &fillPolygons);
+				ImGui::Checkbox("Render Multiple Cubes", &renderMultipleCubes); 
 
 				if (fillPolygons)
 				{
