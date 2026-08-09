@@ -6,7 +6,7 @@
 #include<sstream>
 #include<iostream>
 #include<cerrno>
-#include <format>
+#include<format>
 
 
 Shader::Shader(const char* vertexFile, const char* fragementFile)
@@ -130,15 +130,12 @@ void Shader::stopUsingShader() const
 }
 
 
-
-
-
 void Shader::setUniform1i(const std::string& uniformName, GLint value)
 {
 	LOG_ERRORS(glUniform1i(getUniformLocation(uniformName), value))
 }
 
-void Shader::setUniform1f(const std::string& uniformName, GLfloat value)  // Transparency, animations, etc
+void Shader::setUniform1f(const std::string& uniformName, GLfloat value) 
 {
 	LOG_ERRORS(glUniform1f(getUniformLocation(uniformName), value));
 }

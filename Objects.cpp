@@ -1,7 +1,7 @@
 #include "Objects.h"
 
-const glm::vec3 LogoCube::getCubePosition() const { return cubePosition; }
+const glm::vec3 BasicCube::getCubePosition() const { return cubePosition; }
 
-const std::vector<GLuint> LogoCube::getIndices() const { return indices; }
+const std::vector<GLuint> BasicCube::getIndices() const { return indices; }
 
-const std::vector<GLfloat> LogoCube::getVerticies() const { return verticies; }
+const std::vector<GLfloat> BasicCube::getVerticies() const { return verticies; }

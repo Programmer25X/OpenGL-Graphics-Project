@@ -15,7 +15,7 @@ public:
 
 };
 
-class LogoCube : public Object
+class BasicCube : public Object
 {
 private:
 	std::vector<GLfloat> verticies =
