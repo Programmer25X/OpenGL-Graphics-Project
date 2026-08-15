@@ -6,7 +6,6 @@ Lighting::Lighting(const glm::vec3& pLightColor, const GLfloat pAmbientStrength,
 	lightColor = pLightColor;
 	ambientStrength = pAmbientStrength;
 	shininessValue = pShininessValue;
-	lightDirection = -lightPosition; 
 }
 
 const glm::vec3 Lighting::getLightColor() const { return lightColor; }
