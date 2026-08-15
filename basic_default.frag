@@ -43,7 +43,7 @@ void main()
 
     // Specular Lighting 
     vec3 viewDirection = normalize(u_viewPosition - FragPos);
-    vec3 reflectionDirection = reflect(-lightDirection, norm);
+    vec3 reflectionDirection = reflect(lightDirection, norm);
     float spec = pow(max(dot(viewDirection, reflectionDirection), 0.0), u_material.shininess);
     vec3 specular = u_light.specular * spec * vec3(texture(u_material.specular, v_TexCoord));
 

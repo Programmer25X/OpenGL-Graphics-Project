@@ -221,7 +221,7 @@ void GraphicsEngine::run()
 
 				lightShader->useShader();
 
-				lightShader->setUniformVector3("u_light.direction", -0.2f, -1.0f, -0.3f);
+				lightShader->setUniformVector3("u_light.direction", lightCube->getLightDirection().x, lightCube->getLightDirection().y, lightCube->getLightDirection().z);
 				lightShader->setUniformMatrix4f("u_projection", projectionMatrix);
 				lightShader->setUniformMatrix4f("u_view", viewMatrix);
 				modelMatrix = glm::mat4(1.0f);
