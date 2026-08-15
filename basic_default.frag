@@ -31,7 +31,7 @@ uniform Light u_light;
 void main()
 {
 
-    vec3 lightDirection = normalize(-u_light.direction); 
+    vec3 lightDirection = normalize(u_light.direction); 
 
     // Ambient Lighting 
     vec3 ambient = u_light.ambient * vec3(texture(u_material.diffuse, v_TexCoord));
