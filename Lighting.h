@@ -13,6 +13,9 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
+
+// ======================================== Lighting ======================================================= //
+
 class Lighting
 {
 
@@ -30,7 +33,6 @@ protected:
 	glm::vec3 diffuseColor = glm::vec3(0, 0, 0);
 
 	glm::vec3 lightPosition = glm::vec3(120.0f, 120.0f, 200.0f);
-	glm::vec3 lightDirection = glm::vec3(0, 0, 0);
 
 	GLint shininessValue = 0;
 
@@ -115,7 +117,6 @@ public:
 	void setAmbientStrength(const GLfloat pAmbientStrength);
 
 	// Diffuse Lighting
-	const glm::vec3 getLightDirection() const;
 	const glm::vec3 getLightPosition() const;
 	const glm::vec3 getDiffuseColor() const;
 	const GLfloat getDiffuseStrength() const; 
@@ -126,6 +127,44 @@ public:
 	// Specular Lighting 
 	const GLint getShininessValue() const;
 	void setShininessValue(const GLint pShininessValue);
+
+};
+
+// ======================================== Directional Lighting ======================================================= //
+
+class DirectionalLight : public Lighting
+{
+
+public:
+	DirectionalLight(const glm::vec3& pLightColor = glm::vec3(0.0f, 1.0f, 1.0f), const GLfloat pAmbientStrength = 0.2f, const GLfloat pDiffuseStrength = 0.5f, const GLint pShininessValue = 32);
+
+private:
+	glm::vec3 lightDirection = glm::vec3(0, 0, 0);
+
+public:
+	const glm::vec3 getLightDirection() const;
+
+};
+
+
+// ======================================== Point Light ============================================================= //
+
+class PointLight : public Lighting
+{
+public:
+	PointLight(const glm::vec3& pLightColor = glm::vec3(0.0f, 1.0f, 1.0f), const GLfloat pAmbientStrength = 0.2f, const GLfloat pDiffuseStrength = 0.5f, const GLint pShininessValue = 32);
+
+private:
+	GLfloat constant = 1;
+	GLfloat linear = 0.09f;
+	GLfloat quadratic = 0.032f;
+};
+
+
+// ======================================== Spot Light ================================================================== //
+
+class SpotLight : public Lighting
+{
 
 };
 

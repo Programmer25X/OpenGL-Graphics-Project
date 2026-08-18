@@ -5,13 +5,11 @@ Lighting::Lighting(const glm::vec3& pLightColor, const GLfloat pAmbientStrength,
 {
 	lightColor = pLightColor;
 	ambientStrength = pAmbientStrength;
+	diffuseStrength = pDiffuseStrength;
 	shininessValue = pShininessValue;
-	lightDirection = -lightPosition; 
 }
 
 const glm::vec3 Lighting::getLightColor() const { return lightColor; }
-
-const glm::vec3 Lighting::getLightDirection() const { return lightDirection; }
 
 const std::vector<GLuint> Lighting::getIndices() const { return indices; }
 
@@ -41,8 +39,6 @@ void Lighting::setAmbientStrength(const GLfloat pAmbientStrength)
 }
 
 
-
-
 // Diffuse Lighting 
 
 
@@ -68,7 +64,6 @@ const glm::vec3 Lighting::getDiffuseColor() const { return diffuseColor; }
 const glm::vec3 Lighting::getLightPosition() const { return lightPosition; }
 
 
-
 // Specular Lighting 
 
 const GLint Lighting::getShininessValue() const { return shininessValue; }
@@ -78,3 +73,30 @@ void Lighting::setShininessValue(const GLint pShininessValue)
 	shininessValue = pShininessValue;
 }
 
+
+// ======================================== Directional Lighting ======================================================= //
+
+
+DirectionalLight::DirectionalLight(const glm::vec3& pLightColor, const GLfloat pAmbientStrength, const GLfloat pDiffuseStrength, const GLint pShininessValue)
+{
+	lightColor = pLightColor;
+	ambientStrength = pAmbientStrength;
+	diffuseStrength = pDiffuseStrength;
+	shininessValue = pShininessValue;
+	lightDirection = -lightPosition;
+}
+
+const glm::vec3 DirectionalLight::getLightDirection() const { return lightDirection; }
+
+
+
+// ======================================== Point Light ============================================================= //
+
+
+PointLight::PointLight(const glm::vec3& pLightColor, const GLfloat pAmbientStrength, const GLfloat pDiffuseStrength, const GLint pShininessValue)
+{
+	lightColor = pLightColor;
+	ambientStrength = pAmbientStrength;
+	diffuseStrength = pDiffuseStrength;
+	shininessValue = pShininessValue;
+}

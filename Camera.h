@@ -27,6 +27,8 @@ private:
 	const GLfloat MOUSE_SENSITIVITY = 0.1f;
 
 	GLfloat fieldOfView = 45.0f;
+	GLfloat nearPlane = 0.01f;
+	GLfloat farPlane = 5000.0f;
 
 	glm::mat4 viewMatrix = glm::mat4(0.0f);
 	glm::mat4 projectionMatrix = glm::mat4(0.0f); 
@@ -35,6 +37,14 @@ public:
 	const glm::mat4 getViewMatrix() const; 
 	const glm::mat4 getProjectionMatrix(const GLfloat bufferWidth, const GLfloat bufferHeight, const GLfloat nearPlane = 0.1f, const GLfloat farPlane = 1000.0f) const;
 	const glm::vec3 getCameraPosition() const; 
+	const GLfloat getFOV() const;
+	const GLfloat getNearPlane() const;
+	const GLfloat getFarPlane() const;
+
+	void setFOV(GLfloat value);
+	void setNearPlane(GLfloat value);
+	void setFarPlane(GLfloat value);
+
 
 	void processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window);
 	void processMouseMovements(GLfloat xOffset, GLfloat yOffset, GLboolean constrainPitch = GL_TRUE);

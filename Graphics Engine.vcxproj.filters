@@ -16,9 +16,6 @@
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{501ebc39-6d45-4b2e-bf36-822873c34960}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders\Basic Shader">
-      <UniqueIdentifier>{e75444b2-c65b-4487-8258-9abb1c6353d3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\vendor">
       <UniqueIdentifier>{675f4560-6549-4635-a5d4-df87b999c6d6}</UniqueIdentifier>
     </Filter>
@@ -37,8 +34,11 @@
     <Filter Include="Resource Files\ImGui">
       <UniqueIdentifier>{7ffd93ff-117a-4ccf-9132-acd0aaed985f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files\Shaders\Light Shader">
+    <Filter Include="Resource Files\Shaders\Light Source Shader">
       <UniqueIdentifier>{8dba5995-0fe2-403b-9cf8-bfdc15edb570}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\Light Shader">
+      <UniqueIdentifier>{e75444b2-c65b-4487-8258-9abb1c6353d3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -193,11 +193,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="basic_default.frag">
-      <Filter>Resource Files\Shaders\Basic Shader</Filter>
+    <Text Include="DirectionalLight.frag">
+      <Filter>Resource Files\Shaders\Light Shader</Filter>
     </Text>
-    <Text Include="basic_default.vert">
-      <Filter>Resource Files\Shaders\Basic Shader</Filter>
+    <Text Include="DirectionalLight.vert">
+      <Filter>Resource Files\Shaders\Light Shader</Filter>
     </Text>
   </ItemGroup>
   <ItemGroup>
@@ -216,9 +216,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="lightCube.vert">
-      <Filter>Resource Files\Shaders\Light Shader</Filter>
+      <Filter>Resource Files\Shaders\Light Source Shader</Filter>
     </None>
     <None Include="lightCube.frag">
+      <Filter>Resource Files\Shaders\Light Source Shader</Filter>
+    </None>
+    <None Include="PointLight.vert">
+      <Filter>Resource Files\Shaders\Light Shader</Filter>
+    </None>
+    <None Include="PointLight.frag">
       <Filter>Resource Files\Shaders\Light Shader</Filter>
     </None>
   </ItemGroup>

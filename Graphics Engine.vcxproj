@@ -188,8 +188,8 @@
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="basic_default.vert" />
-    <Text Include="basic_default.frag" />
+    <Text Include="DirectionalLight.vert" />
+    <Text Include="DirectionalLight.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="container2.png" />
@@ -200,6 +200,8 @@
   <ItemGroup>
     <None Include="lightCube.frag" />
     <None Include="lightCube.vert" />
+    <None Include="PointLight.frag" />
+    <None Include="PointLight.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

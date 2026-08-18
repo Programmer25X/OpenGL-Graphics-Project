@@ -40,18 +40,20 @@ GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 void GraphicsEngine::run()
 {
 	BasicCube* cube = new BasicCube;
-	Lighting* lightCube = new Lighting(glm::vec3(1.0f, 1.0f, 1.0f)); 	
+	DirectionalLight* directionalLight = new DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f)); 
+	// PointLight* pointLight = new PointLight(glm::vec3(1.0f, 1.0f, 1.0f));
 
 	GLfloat aspectRatio = 0.0f; 
-	bool isAmbientLightingOn = true;
-	bool fillPolygons = true;
-	bool renderMultipleCubes = true;
 
-	ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	bool isSettingsWindowOpen = true;
+	bool isAmbientLightingOn = true;
+	bool isWireframeEnabled = false;
+	bool isVSyncActive = false;
+	bool isRenderingMultipleCubes = true;
+
 	ImVec4 sceneLightColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-	GLfloat sceneAmbientLightStrength = lightCube->getAmbientStrength();
-	GLfloat sceneDiffuseLightStrength = lightCube->getDiffuseStrength(); 
-	GLuint shininessValue = lightCube->getShininessValue(); 
+	ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
 
 	GLint bufferWidth;
 	GLint bufferHeight;
@@ -91,9 +93,12 @@ void GraphicsEngine::run()
 
 	Renderer::setupBlendFunctions();
 
+	// ================================ Creating ImGui Context ========================================= //
+
 	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui::StyleColorsDark();
+	ImGuiIO& io = ImGui::GetIO(); 
+	(void)io;
+	styleSettingsMenu();
 
 
 	{
@@ -101,7 +106,6 @@ void GraphicsEngine::run()
 
 		ImGui_ImplGlfw_InitForOpenGL(engineWindow->getWindow(), true);
 		ImGui_ImplOpenGL3_Init("#version 130");
-		ImGui::StyleColorsDark();
  
 		VertexArrayObject* VAO1 = new VertexArrayObject;
 		VertexBufferObject* VBO1 = new VertexBufferObject(cube->getVerticies().data(), cube->getVerticies().size());
@@ -109,9 +113,9 @@ void GraphicsEngine::run()
 		ElementBufferObject* EBO1 = new ElementBufferObject(cube->getIndices().data(), cube->getIndices().size());
 
 		VertexArrayObject* VAO2 = new VertexArrayObject;
-		VertexBufferObject* VBO2 = new VertexBufferObject(lightCube->getVerticies().data(), lightCube->getVerticies().size());
+		VertexBufferObject* VBO2 = new VertexBufferObject(directionalLight->getVerticies().data(), directionalLight->getVerticies().size());
 		VertexBufferLayout* layout2 = new VertexBufferLayout;
-		ElementBufferObject* EBO2 = new ElementBufferObject(lightCube->getIndices().data(), lightCube->getVerticies().size());
+		ElementBufferObject* EBO2 = new ElementBufferObject(directionalLight->getIndices().data(), directionalLight->getVerticies().size());
 
 		layout1->pushElement<float>(3);
 		layout1->pushElement<float>(3);
@@ -126,8 +130,7 @@ void GraphicsEngine::run()
 		engineWindow->setAspectRatio(bufferWidth, bufferHeight); 
 		const GLfloat HALF_BUFFER_WIDTH = static_cast<GLfloat>(bufferWidth) * 0.5f / engineWindow->getAspectRatio();
 		const GLfloat HALF_BUFFER_HEIGHT = static_cast<GLfloat>(bufferHeight) * 0.5f / engineWindow->getAspectRatio();
-		const GLfloat NEAR_PLANE = 0.1f;
-		const GLfloat FAR_PLANE = 20000.0f;
+		
 
 
 
@@ -145,16 +148,17 @@ void GraphicsEngine::run()
 
 
 
-		Shader* cubeShader = new Shader("basic_default.vert", "basic_default.frag");
-		Shader* lightShader = new Shader("lightCube.vert", "lightCube.frag"); 
+		Shader* directionalLightShader = new Shader("DirectionalLight.vert", "DirectionalLight.frag");
+		Shader* lightSourceShader = new Shader("lightCube.vert", "lightCube.frag"); 
 
 		Texture* texture1 = new Texture("container2.png"); 
 		Texture* texture2 = new Texture("container2_specular.png");
 		texture1->bind(0); 
 		texture2->bind(1);
-		cubeShader->useShader(); 
-		cubeShader->setUniform1i("u_material.diffuse", 0);
-		cubeShader->setUniform1i("u_material.specular", 1);
+
+		directionalLightShader->useShader(); 
+		directionalLightShader->setUniform1i("u_material.diffuse", 0);
+		directionalLightShader->setUniform1i("u_material.specular", 1);
 
 
 		while (!glfwWindowShouldClose(engineWindow->getWindow()))
@@ -168,31 +172,31 @@ void GraphicsEngine::run()
 			{
 				// =========================== MVP Pipeline ================================================================ //
 
-				glm::mat4 projectionMatrix = camera->getProjectionMatrix(static_cast<const GLfloat>(bufferWidth), static_cast<const GLfloat>(bufferHeight), NEAR_PLANE, FAR_PLANE);
+				glm::mat4 projectionMatrix = camera->getProjectionMatrix(static_cast<const GLfloat>(bufferWidth), static_cast<const GLfloat>(bufferHeight), camera->getNearPlane(), camera->getFarPlane());
 				glm::mat4 viewMatrix = camera->getViewMatrix();
 				glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-				lightCube->setLightPosition(glm::vec3(1.0f + sin(glfwGetTime()) * 2.0f, sin(glfwGetTime() / 2.0f) * 1.0f, lightCube->getLightPosition().z));
+				directionalLight->setLightPosition(glm::vec3(1.0f + sin(glfwGetTime()) * 2.0f, sin(glfwGetTime() / 2.0f) * 1.0f, directionalLight->getLightPosition().z));
 
 
 				// =========================== Generating the main cube ====================================================== //
 
-				cubeShader->useShader();
-				cubeShader->setUniformVector3("u_light.direction", lightCube->getLightPosition().x, lightCube->getLightPosition().y, lightCube->getLightPosition().z);
-				cubeShader->setUniformVector3("u_viewPosition", camera->getCameraPosition().x, camera->getCameraPosition().y, camera->getCameraPosition().z);
+				directionalLightShader->useShader();
+				directionalLightShader->setUniformVector3("u_light.direction", directionalLight->getLightPosition().x, directionalLight->getLightPosition().y, directionalLight->getLightPosition().z);
+				directionalLightShader->setUniformVector3("u_viewPosition", camera->getCameraPosition().x, camera->getCameraPosition().y, camera->getCameraPosition().z);
 				
-				cubeShader->setUniformVector3("u_light.ambient", lightCube->getAmbientColor().r, lightCube->getAmbientColor().g, lightCube->getAmbientColor().b);
-				cubeShader->setUniformVector3("u_light.diffuse", lightCube->getDiffuseColor().r, lightCube->getDiffuseColor().g, lightCube->getDiffuseColor().b);
-				cubeShader->setUniformVector3("u_light.specular", 1.0f, 1.0f, 1.0f);
+				directionalLightShader->setUniformVector3("u_light.ambient", directionalLight->getAmbientColor().r, directionalLight->getAmbientColor().g, directionalLight->getAmbientColor().b);
+				directionalLightShader->setUniformVector3("u_light.diffuse", directionalLight->getDiffuseColor().r, directionalLight->getDiffuseColor().g, directionalLight->getDiffuseColor().b);
+				directionalLightShader->setUniformVector3("u_light.specular", 1.0f, 1.0f, 1.0f);
 
-				cubeShader->setUniform1f("u_material.shininess", static_cast<GLfloat>(lightCube->getShininessValue()));
+				directionalLightShader->setUniform1f("u_material.shininess", static_cast<GLfloat>(directionalLight->getShininessValue()));
 
-				cubeShader->setUniformMatrix4f("u_projection", projectionMatrix);
-				cubeShader->setUniformMatrix4f("u_view", viewMatrix);
-				cubeShader->setUniformMatrix4f("u_model", modelMatrix); 
+				directionalLightShader->setUniformMatrix4f("u_projection", projectionMatrix);
+				directionalLightShader->setUniformMatrix4f("u_view", viewMatrix);
+				directionalLightShader->setUniformMatrix4f("u_model", modelMatrix); 
 
 
-				if (renderMultipleCubes)
+				if (isRenderingMultipleCubes)
 				{
 					for (GLuint i = 0; i < (sizeof(cubePositions)/sizeof(cubePositions[i])); i++)
 					{
@@ -201,9 +205,8 @@ void GraphicsEngine::run()
 						float angle = 20.0f * i;
 						modelMatrix = glm::rotate(modelMatrix, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 						modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-						cubeShader->setUniformMatrix4f("u_model", modelMatrix);
-
-						renderer->draw(*VAO1, *EBO1, *cubeShader);
+						directionalLightShader->setUniformMatrix4f("u_model", modelMatrix);
+						renderer->draw(*VAO1, *EBO1, *directionalLightShader);
 					}
 				}
 				else
@@ -211,69 +214,107 @@ void GraphicsEngine::run()
 					modelMatrix = glm::mat4(1.0f);
 					modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 					modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-					cubeShader->setUniformMatrix4f("u_model", modelMatrix);
- 
-					renderer->draw(*VAO1, *EBO1, *cubeShader);
+					directionalLightShader->setUniformMatrix4f("u_model", modelMatrix);
+					renderer->draw(*VAO1, *EBO1, *directionalLightShader);
 				}
 
 
 				// =========================== Generating the light source ===================================================== //
 
-				lightShader->useShader();
-
-				lightShader->setUniformVector3("u_light.direction", lightCube->getLightDirection().x, lightCube->getLightDirection().y, lightCube->getLightDirection().z);
-				lightShader->setUniformMatrix4f("u_projection", projectionMatrix);
-				lightShader->setUniformMatrix4f("u_view", viewMatrix);
+				lightSourceShader->useShader();
+				lightSourceShader->setUniformVector3("u_light.direction", directionalLight->getLightDirection().x, directionalLight->getLightDirection().y, directionalLight->getLightDirection().z);
+				lightSourceShader->setUniformMatrix4f("u_projection", projectionMatrix);
+				lightSourceShader->setUniformMatrix4f("u_view", viewMatrix);
 				modelMatrix = glm::mat4(1.0f);
-				modelMatrix = glm::translate(modelMatrix, lightCube->getLightPosition());
+				modelMatrix = glm::translate(modelMatrix, directionalLight->getLightPosition());
 				modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f)); // a smaller cube
-
-				lightShader->setUniformMatrix4f("u_model", modelMatrix);
-
-				renderer->draw(*VAO2, *EBO2, *lightShader);
+				lightSourceShader->setUniformMatrix4f("u_model", modelMatrix);
+				renderer->draw(*VAO2, *EBO2, *lightSourceShader);
 
 				// =========================== Real-time updates and ImGUI ===================================================== //
 
-				ImGui::Begin("Graphics Engine");
+				ImGui::Begin("Settings", &isSettingsWindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
-				{	
-					cubeShader->useShader();
+				directionalLightShader->useShader();
 
-					ImGui::ColorEdit3("Light Colour", (float*)&sceneLightColor);
-					ImGui::SliderFloat("Ambient Light Intensity", (float*)&sceneAmbientLightStrength, 0.0f, 1.0f);
-					ImGui::SliderFloat("Diffuse Light Intensity", (float*)&sceneDiffuseLightStrength, 0.0f, 2.0f);
-					ImGui::SliderInt("Shininess Value", (GLint*)&shininessValue, 1, 256);
+				if (ImGui::CollapsingHeader("Lighting & Background", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					GLfloat sceneAmbientLightStrength = directionalLight->getAmbientStrength();
+					GLfloat sceneDiffuseLightStrength = directionalLight->getDiffuseStrength();
 
-					lightCube->setLightColor(glm::vec3(sceneLightColor.x, sceneLightColor.y, sceneLightColor.z));
+					if (ImGui::ColorEdit3("Light Colour", (float*)&sceneLightColor))
+					{
+						directionalLight->setLightColor(glm::vec3(sceneLightColor.x, sceneLightColor.y, sceneLightColor.z));
+						directionalLight->setAmbientColor();
+						directionalLight->setDiffuseColor();
+					}
+					if (ImGui::SliderFloat("Ambient Light Intensity", (float*)&sceneAmbientLightStrength, 0.0f, 1.0f))
+					{
+						directionalLight->setAmbientStrength(sceneAmbientLightStrength);
+						directionalLight->setAmbientColor();
+					}
+					if (ImGui::SliderFloat("Diffuse Light Intensity", (float*)&sceneDiffuseLightStrength, 0.0f, 2.0f))
+					{
+						directionalLight->setDiffuseStrength(sceneDiffuseLightStrength);
+						directionalLight->setDiffuseColor();
+					}
 
-					lightCube->setAmbientStrength(sceneAmbientLightStrength);
-					lightCube->setAmbientColor();
-					cubeShader->setUniformVector3("u_light.ambient", lightCube->getAmbientColor().r, lightCube->getAmbientColor().g, lightCube->getAmbientColor().b);
-
-					lightCube->setDiffuseStrength(sceneDiffuseLightStrength);
-					lightCube->setDiffuseColor();
-					cubeShader->setUniformVector3("u_light.diffuse", lightCube->getDiffuseColor().r, lightCube->getDiffuseColor().g, lightCube->getDiffuseColor().b);
-
-					lightCube->setShininessValue(shininessValue);
-					cubeShader->setUniform1f("u_material.shininess", lightCube->getShininessValue()); 
+					if(ImGui::ColorEdit3("Background Color", (float*)&clearColor));
+					{
+						LOG_ERRORS(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w));
+					}
 				}
 
-				ImGui::ColorEdit3("Clear Color", (float*)&clearColor); 
-				LOG_ERRORS(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w)); 
-
-				ImGui::Checkbox("Fill Polygons", &fillPolygons);
-				ImGui::Checkbox("Render Multiple Cubes", &renderMultipleCubes); 
-
-				if (fillPolygons)
+				if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
 				{
-					LOG_ERRORS(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+					float fovTemp = camera->getFOV();
+					if (ImGui::SliderFloat("Field of View (FOV)", &fovTemp, 1.0f, 45.0f));
+					{
+						camera->setFOV(fovTemp);
+					}
+					float nearPlaneTemp = camera->getNearPlane();
+					if (ImGui::SliderFloat("Near Plane", &nearPlaneTemp, 0.01f, 100.0f));
+					{
+						camera->setNearPlane(nearPlaneTemp);
+					}
+					float farPlaneTemp = camera->getFarPlane();
+					if (ImGui::SliderFloat("Far Plane", &farPlaneTemp, 100.0f, 5000.0f));
+					{
+						camera->setFarPlane(farPlaneTemp);
+					}
 				}
-				else 
+
+				if (ImGui::CollapsingHeader("Boxing", ImGuiTreeNodeFlags_DefaultOpen))
 				{
-					LOG_ERRORS(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+					GLuint shininessValue = directionalLight->getShininessValue();
+					if (ImGui::SliderInt("Shininess Value", (GLint*)&shininessValue, 1, 256))
+					{
+						directionalLight->setShininessValue(shininessValue);
+					}
+				}
+
+				if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					if (ImGui::Checkbox("Wireframe", &isWireframeEnabled))
+					{
+						if (!isWireframeEnabled)
+						{
+							LOG_ERRORS(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
+						}
+						else
+						{
+							LOG_ERRORS(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
+						}
+					}
+					ImGui::Checkbox("VSync", &isVSyncActive);
+					ImGui::Checkbox("Multiple Cubes", &isRenderingMultipleCubes);
+				}
+
+				if (ImGui::CollapsingHeader("Other Information", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					ImGui::Text("Application's Average FPS: %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 				}
 		
-				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 				ImGui::End();
 			}
 
@@ -287,20 +328,20 @@ void GraphicsEngine::run()
 			glfwPollEvents(); // Handle all GLFW events
 	}
 
-		cubeShader->stopUsingShader();
-		lightShader->stopUsingShader();
+		directionalLightShader->stopUsingShader();
+		lightSourceShader->stopUsingShader();
 
 		// =========================== Memory Management - Deleting instantiated objects =====================================================
 
 		delete(texture1);
 		delete(texture2);
 
-		delete(cubeShader);
-		delete(lightShader);
+		delete(directionalLightShader);
+		delete(lightSourceShader);
 		delete(renderer);
 
 		delete(cube);
-		delete(lightCube);
+		delete(directionalLight);
 
 		delete(VAO1);
 		delete(VBO1);
@@ -322,6 +363,16 @@ void GraphicsEngine::run()
 
 	glfwDestroyWindow(engineWindow->getWindow()); // Deletes the window
 	glfwTerminate(); // Terminates the program
+}
+
+void GraphicsEngine::styleSettingsMenu()
+{
+	ImGui::GetStyle().Colors[ImGuiCol_TitleBgActive] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+	ImGui::GetStyle().Colors[ImGuiCol_WindowBg] = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+	ImGui::GetStyle().Colors[ImGuiCol_SliderGrab] = ImVec4(80.0f / 255.0f, 235.0f / 255.0f, 114.0f / 255.0f, 1.0f);
+	ImGui::GetStyle().Colors[ImGuiCol_Header] = ImVec4(50.0f / 255.0f, 50.0f / 255.0f, 50.0f / 255.0f, 1.0f);
+	ImGui::GetStyle().Colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	ImGui::GetStyle().Colors[ImGuiCol_Border] = ImVec4(80.0f / 255.0f, 235.0f / 255.0f, 114.0f / 255.0f, 1.0f); 
 }
 
 /// <summary>

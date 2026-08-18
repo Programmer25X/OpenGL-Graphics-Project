@@ -20,6 +20,7 @@ private:
 
 public:
 	void run();
+	void styleSettingsMenu();
 };
 
 #endif
