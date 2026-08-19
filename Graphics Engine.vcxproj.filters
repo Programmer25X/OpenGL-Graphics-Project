@@ -221,11 +221,5 @@
     <None Include="lightCube.frag">
       <Filter>Resource Files\Shaders\Light Source Shader</Filter>
     </None>
-    <None Include="PointLight.vert">
-      <Filter>Resource Files\Shaders\Light Shader</Filter>
-    </None>
-    <None Include="PointLight.frag">
-      <Filter>Resource Files\Shaders\Light Shader</Filter>
-    </None>
   </ItemGroup>
 </Project>

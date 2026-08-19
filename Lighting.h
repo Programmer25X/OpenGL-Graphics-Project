@@ -108,12 +108,12 @@ public:
 	const std::vector<GLuint> getIndices() const;
 	const std::vector<GLfloat> getVerticies() const;
 
-	void setLightColor(const glm::vec3& pLightColor);
+	void setLightColour(const glm::vec3& pLightColor);
 
 	// Ambient Lighting 
 	const glm::vec3 getAmbientColor() const;
 	const GLfloat getAmbientStrength() const;
-	void setAmbientColor(); 
+	void setAmbientColour(); 
 	void setAmbientStrength(const GLfloat pAmbientStrength);
 
 	// Diffuse Lighting
@@ -121,7 +121,7 @@ public:
 	const glm::vec3 getDiffuseColor() const;
 	const GLfloat getDiffuseStrength() const; 
 	void setLightPosition(const glm::vec3& pLightPosition);
-	void setDiffuseColor();
+	void setDiffuseColour();
 	void setDiffuseStrength(const GLfloat pDiffuseStrength);
 	
 	// Specular Lighting 
@@ -136,7 +136,7 @@ class DirectionalLight : public Lighting
 {
 
 public:
-	DirectionalLight(const glm::vec3& pLightColor = glm::vec3(0.0f, 1.0f, 1.0f), const GLfloat pAmbientStrength = 0.2f, const GLfloat pDiffuseStrength = 0.5f, const GLint pShininessValue = 32);
+	DirectionalLight(const glm::vec3& pLightColor = glm::vec3(0.0f, 1.0f, 1.0f), const GLfloat pAmbientStrength = 0.0125f, const GLfloat pDiffuseStrength = 0.0f, const GLint pShininessValue = 32);
 
 private:
 	glm::vec3 lightDirection = glm::vec3(0, 0, 0);

@@ -16,7 +16,7 @@ const std::vector<GLuint> Lighting::getIndices() const { return indices; }
 const std::vector<GLfloat> Lighting::getVerticies() const { return verticies; }
 
 
-void Lighting::setLightColor(const glm::vec3& pLightColor)
+void Lighting::setLightColour(const glm::vec3& pLightColor)
 {
 	lightColor = pLightColor; 
 }
@@ -28,7 +28,7 @@ const glm::vec3 Lighting::getAmbientColor() const { return ambientColor; }
 
 const GLfloat Lighting::getAmbientStrength() const { return ambientStrength; }
 
-void Lighting::setAmbientColor()
+void Lighting::setAmbientColour()
 {
 	ambientColor = lightColor * ambientStrength;
 }
@@ -47,7 +47,7 @@ void Lighting::setLightPosition(const glm::vec3& pLightPosition)
 	lightPosition = pLightPosition;
 }
 
-void Lighting::setDiffuseColor()
+void Lighting::setDiffuseColour()
 {
 	diffuseColor = lightColor * diffuseStrength;
 }

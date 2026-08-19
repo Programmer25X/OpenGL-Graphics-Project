@@ -200,8 +200,6 @@
   <ItemGroup>
     <None Include="lightCube.frag" />
     <None Include="lightCube.vert" />
-    <None Include="PointLight.frag" />
-    <None Include="PointLight.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
