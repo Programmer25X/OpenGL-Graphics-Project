@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <format>
 
 #include "GraphicsEngine.h"
 #include "Renderer.h"
@@ -40,20 +41,26 @@ GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 void GraphicsEngine::run()
 {
 	BasicCube* cube = new BasicCube;
-	DirectionalLight* directionalLight = new DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f)); 
-	// PointLight* pointLight = new PointLight(glm::vec3(1.0f, 1.0f, 1.0f));
+
+	DirectionalLight* directionalLight = new DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f));
+
+	PointLight* pointLights[4] = {};
+	pointLights[0] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
+	pointLights[1] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
+	pointLights[2] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
+	pointLights[3] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
+
 
 	GLfloat aspectRatio = 0.0f; 
 
 	bool isSettingsWindowOpen = true;
-	bool isAmbientLightingOn = true;
 	bool isWireframeEnabled = false;
 	bool isVSyncActive = false;
 	bool isRenderingMultipleCubes = true;
 
-	ImVec4 sceneLightColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-	ImVec4 clearColor = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
+	ImVec4 directionalLightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	ImVec4 pointLightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	ImVec4 clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	GLint bufferWidth;
 	GLint bufferHeight;
@@ -117,21 +124,29 @@ void GraphicsEngine::run()
 		VertexBufferLayout* layout2 = new VertexBufferLayout;
 		ElementBufferObject* EBO2 = new ElementBufferObject(directionalLight->getIndices().data(), directionalLight->getVerticies().size());
 
+		VertexArrayObject* VAO3 = new VertexArrayObject;
+		VertexBufferObject* VBO3 = new VertexBufferObject(pointLights[0]->getVerticies().data(), pointLights[0]->getVerticies().size());
+		VertexBufferLayout* layout3 = new VertexBufferLayout;
+		ElementBufferObject* EBO3 = new ElementBufferObject(pointLights[0]->getIndices().data(), pointLights[0]->getVerticies().size());
+
+
 		layout1->pushElement<float>(3);
 		layout1->pushElement<float>(3);
 		layout1->pushElement<float>(2);
 
 		layout2->pushElement<float>(3);
 
+		layout3->pushElement<float>(3);
+
 		LOG_ERRORS(VAO1->addBuffer(*VBO1, *layout1)); 
 		LOG_ERRORS(VAO2->addBuffer(*VBO2, *layout2));
+		LOG_ERRORS(VAO3->addBuffer(*VBO3, *layout3));
 
 
 		engineWindow->setAspectRatio(bufferWidth, bufferHeight); 
 		const GLfloat HALF_BUFFER_WIDTH = static_cast<GLfloat>(bufferWidth) * 0.5f / engineWindow->getAspectRatio();
 		const GLfloat HALF_BUFFER_HEIGHT = static_cast<GLfloat>(bufferHeight) * 0.5f / engineWindow->getAspectRatio();
 		
-
 
 
 	glm::vec3 cubePositions[] = {
@@ -146,9 +161,15 @@ void GraphicsEngine::run()
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f) };
 
+	glm::vec3 pointLightPositions[] = {
+		glm::vec3(0.7f,  0.2f,  2.0f),
+		glm::vec3(2.3f, -3.3f, -4.0f),
+		glm::vec3(-4.0f,  2.0f, -12.0f),
+		glm::vec3(0.0f,  0.0f, -3.0f) };
 
 
-		Shader* directionalLightShader = new Shader("DirectionalLight.vert", "DirectionalLight.frag");
+
+		Shader* lightingShader = new Shader("DirectionalLight.vert", "DirectionalLight.frag");
 		Shader* lightSourceShader = new Shader("lightCube.vert", "lightCube.frag"); 
 
 		Texture* texture1 = new Texture("container2.png"); 
@@ -156,9 +177,9 @@ void GraphicsEngine::run()
 		texture1->bind(0); 
 		texture2->bind(1);
 
-		directionalLightShader->useShader(); 
-		directionalLightShader->setUniform1i("u_material.diffuse", 0);
-		directionalLightShader->setUniform1i("u_material.specular", 1);
+		lightingShader->useShader(); 
+		lightingShader->setUniform1i("u_material.diffuse", 0);
+		lightingShader->setUniform1i("u_material.specular", 1);
 
 
 		while (!glfwWindowShouldClose(engineWindow->getWindow()))
@@ -179,34 +200,50 @@ void GraphicsEngine::run()
 				directionalLight->setLightPosition(glm::vec3(1.0f + sin(glfwGetTime()) * 2.0f, sin(glfwGetTime() / 2.0f) * 1.0f, directionalLight->getLightPosition().z));
 
 
-				// =========================== Generating the main cube ====================================================== //
+				// =========================== Setting the Uniforms for the Lights and Boxes ====================================================== //
 
-				directionalLightShader->useShader();
-				directionalLightShader->setUniformVector3("u_light.direction", directionalLight->getLightPosition().x, directionalLight->getLightPosition().y, directionalLight->getLightPosition().z);
-				directionalLightShader->setUniformVector3("u_viewPosition", camera->getCameraPosition().x, camera->getCameraPosition().y, camera->getCameraPosition().z);
-				
-				directionalLightShader->setUniformVector3("u_light.ambient", directionalLight->getAmbientColor().r, directionalLight->getAmbientColor().g, directionalLight->getAmbientColor().b);
-				directionalLightShader->setUniformVector3("u_light.diffuse", directionalLight->getDiffuseColor().r, directionalLight->getDiffuseColor().g, directionalLight->getDiffuseColor().b);
-				directionalLightShader->setUniformVector3("u_light.specular", 1.0f, 1.0f, 1.0f);
+				lightingShader->useShader();
 
-				directionalLightShader->setUniform1f("u_material.shininess", static_cast<GLfloat>(directionalLight->getShininessValue()));
+				// Directional Light
+				lightingShader->setUniformVector3("u_directionalLight.direction", directionalLight->getLightPosition().x, directionalLight->getLightPosition().y, directionalLight->getLightPosition().z);
+				lightingShader->setUniformVector3("u_viewPosition", camera->getCameraPosition().x, camera->getCameraPosition().y, camera->getCameraPosition().z);
+				lightingShader->setUniformVector3("u_directionalLight.ambient", directionalLight->getAmbientColour().r, directionalLight->getAmbientColour().g, directionalLight->getAmbientColour().b);
+				lightingShader->setUniformVector3("u_directionalLight.diffuse", directionalLight->getDiffuseColour().r, directionalLight->getDiffuseColour().g, directionalLight->getDiffuseColour().b);
+				lightingShader->setUniformVector3("u_directionalLight.specular", directionalLight->getSpecularColour().r, directionalLight->getSpecularColour().g, directionalLight->getSpecularColour().b);
 
-				directionalLightShader->setUniformMatrix4f("u_projection", projectionMatrix);
-				directionalLightShader->setUniformMatrix4f("u_view", viewMatrix);
-				directionalLightShader->setUniformMatrix4f("u_model", modelMatrix); 
+				// Point Lights
+				for (GLint i = 0; i < (sizeof(pointLightPositions) / sizeof(pointLightPositions[i])); i++)
+				{
+					std::string pointLightUniform = std::string("u_pointLight[") + std::to_string(i) + std::string("].");
+					lightingShader->setUniformVector3(pointLightUniform + "position", pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
+					lightingShader->setUniformVector3(pointLightUniform + "ambient", pointLights[i]->getAmbientColour().r, pointLights[i]->getAmbientColour().g, pointLights[i]->getAmbientColour().b);
+					lightingShader->setUniformVector3(pointLightUniform + "diffuse", pointLights[i]->getDiffuseColour().r, pointLights[i]->getDiffuseColour().g, pointLights[i]->getDiffuseColour().b);
+					lightingShader->setUniformVector3(pointLightUniform + "specular", pointLights[i]->getSpecularColour().r, pointLights[i]->getSpecularColour().g, pointLights[i]->getSpecularColour().b);
+					lightingShader->setUniform1f(pointLightUniform + "constant", pointLights[i]->getConstant());
+					lightingShader->setUniform1f(pointLightUniform + "linear", pointLights[i]->getLinear());
+					lightingShader->setUniform1f(pointLightUniform + "quadratic", pointLights[i]->getQuadratic());
+				}
 
+				// Boxes
+				lightingShader->setUniform1f("u_material.shininess", static_cast<GLfloat>(directionalLight->getShininessValue()));
+				lightingShader->setUniformMatrix4f("u_projection", projectionMatrix);
+				lightingShader->setUniformMatrix4f("u_view", viewMatrix);
+				lightingShader->setUniformMatrix4f("u_model", modelMatrix); 
+
+
+				// =========================== Drawing the Boxes ===================================================== //
 
 				if (isRenderingMultipleCubes)
 				{
-					for (GLuint i = 0; i < (sizeof(cubePositions)/sizeof(cubePositions[i])); i++)
+					for (GLuint i = 0; i < (sizeof(cubePositions)/sizeof(cubePositions[0])); i++)
 					{
 						modelMatrix = glm::mat4(1.0f);
-						modelMatrix = glm::translate(modelMatrix, cubePositions[i] * 250.0f);
+						modelMatrix = glm::translate(modelMatrix, cubePositions[i] * 200.0f);
 						float angle = 20.0f * i;
 						modelMatrix = glm::rotate(modelMatrix, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 						modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-						directionalLightShader->setUniformMatrix4f("u_model", modelMatrix);
-						renderer->draw(*VAO1, *EBO1, *directionalLightShader);
+						lightingShader->setUniformMatrix4f("u_model", modelMatrix);
+						renderer->draw(*VAO1, *EBO1, *lightingShader);
 					}
 				}
 				else
@@ -214,70 +251,161 @@ void GraphicsEngine::run()
 					modelMatrix = glm::mat4(1.0f);
 					modelMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 					modelMatrix = glm::rotate(modelMatrix, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-					directionalLightShader->setUniformMatrix4f("u_model", modelMatrix);
-					renderer->draw(*VAO1, *EBO1, *directionalLightShader);
+					lightingShader->setUniformMatrix4f("u_model", modelMatrix);
+					renderer->draw(*VAO1, *EBO1, *lightingShader);
 				}
 
-
-				// =========================== Generating the light source ===================================================== //
+				// =========================== Drawing the Light Sources ===================================================== //
 
 				lightSourceShader->useShader();
-				lightSourceShader->setUniformVector3("u_light.direction", directionalLight->getLightDirection().x, directionalLight->getLightDirection().y, directionalLight->getLightDirection().z);
 				lightSourceShader->setUniformMatrix4f("u_projection", projectionMatrix);
 				lightSourceShader->setUniformMatrix4f("u_view", viewMatrix);
-				modelMatrix = glm::mat4(1.0f);
-				modelMatrix = glm::translate(modelMatrix, directionalLight->getLightPosition());
-				modelMatrix = glm::scale(modelMatrix, glm::vec3(0.2f)); // a smaller cube
-				lightSourceShader->setUniformMatrix4f("u_model", modelMatrix);
-				renderer->draw(*VAO2, *EBO2, *lightSourceShader);
 
-				// =========================== Real-time updates and ImGUI ===================================================== //
+				for (GLuint i = 0; i < (sizeof(pointLights) / sizeof(pointLights[0])); i++)
+				{
+					modelMatrix = glm::mat4(1.0f);
+					modelMatrix = glm::translate(modelMatrix, pointLightPositions[i] * 250.0f);
+					modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f)); // a smaller cube
+					lightSourceShader->setUniformMatrix4f("u_model", modelMatrix);
+					lightSourceShader->setUniformVector3("u_lightSourceColour", pointLights[i]->getLightColor().r, pointLights[i]->getLightColor().g, pointLights[i]->getLightColor().b);
+					renderer->draw(*VAO3, *EBO3, *lightSourceShader); 
+				}
+
+				// =========================== Real-Time Updates and ImGUI ===================================================== //
 
 				ImGui::Begin("Settings", &isSettingsWindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
-				directionalLightShader->useShader();
+				lightingShader->useShader();
 
-				if (ImGui::CollapsingHeader("Lighting & Background", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::CollapsingHeader("Directional Lighting & Background", ImGuiTreeNodeFlags_DefaultOpen))
 				{
-					GLfloat sceneAmbientLightStrength = directionalLight->getAmbientStrength();
-					GLfloat sceneDiffuseLightStrength = directionalLight->getDiffuseStrength();
+					GLfloat sceneAmbientLightStrengthTemp = directionalLight->getAmbientIntensity();
+					GLfloat sceneDiffuseLightStrengthTemp = directionalLight->getDiffuseIntensity();
+					GLfloat sceneSpecularLightStrengthTemp = directionalLight->getSpecularIntensity();
 
-					if (ImGui::ColorEdit3("Light Colour", (float*)&sceneLightColor))
+					if (ImGui::ColorEdit3("Light Colour##DirectionalLight", (float*)&directionalLightColour), ImGuiColorEditFlags_DisplayRGB)
 					{
-						directionalLight->setLightColor(glm::vec3(sceneLightColor.x, sceneLightColor.y, sceneLightColor.z));
-						directionalLight->setAmbientColor();
-						directionalLight->setDiffuseColor();
-					}
-					if (ImGui::SliderFloat("Ambient Light Intensity", (float*)&sceneAmbientLightStrength, 0.0f, 1.0f))
-					{
-						directionalLight->setAmbientStrength(sceneAmbientLightStrength);
-						directionalLight->setAmbientColor();
-					}
-					if (ImGui::SliderFloat("Diffuse Light Intensity", (float*)&sceneDiffuseLightStrength, 0.0f, 2.0f))
-					{
-						directionalLight->setDiffuseStrength(sceneDiffuseLightStrength);
-						directionalLight->setDiffuseColor();
+						directionalLight->setLightColour(glm::vec3(directionalLightColour.x, directionalLightColour.y, directionalLightColour.z));
+						directionalLight->setAmbientColour();
+						directionalLight->setDiffuseColour();
+						directionalLight->setSpecularColour();
 					}
 
-					if(ImGui::ColorEdit3("Background Color", (float*)&clearColor));
+					if (ImGui::SliderFloat("Ambient Intensity##DirectionalLight", (float*)&sceneAmbientLightStrengthTemp, 0.013f, 1.0f, "%.3f"))
 					{
-						LOG_ERRORS(glClearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w));
+						directionalLight->setAmbientIntensity(sceneAmbientLightStrengthTemp);
+						directionalLight->setAmbientColour();
 					}
+
+					if (ImGui::SliderFloat("Diffuse Intensity##DirectionalLight", (float*)&sceneDiffuseLightStrengthTemp, 0.0f, 2.0f, "%.3f"))
+					{
+						directionalLight->setDiffuseIntensity(sceneDiffuseLightStrengthTemp);
+						directionalLight->setDiffuseColour();
+					}
+
+					if (ImGui::SliderFloat("Specular Intensity##DirectionalLight", (float*)&sceneSpecularLightStrengthTemp, 0.0f, 1.0f, "%.3f"))
+					{
+						directionalLight->setSpecularIntensity(sceneSpecularLightStrengthTemp);
+						directionalLight->setSpecularColour();
+					}
+
+					if(ImGui::ColorEdit3("Background Colour", (float*)&clearColour, ImGuiColorEditFlags_DisplayRGB));
+					{
+						LOG_ERRORS(glClearColor(clearColour.x, clearColour.y, clearColour.z, clearColour.w));
+					}
+				}
+
+				if (ImGui::CollapsingHeader("Point Lighting", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					GLfloat pointLightAmbientLightStrengthTemp = pointLights[0]->getAmbientIntensity();
+					GLfloat pointLightDiffuseLightStrengthTemp = pointLights[0]->getDiffuseIntensity();
+					GLfloat pointLightSpecularLightStrengthTemp = pointLights[0]->getSpecularIntensity();
+
+					GLfloat attenuationConstantTemp = pointLights[0]->getConstant();
+					GLfloat attenuationLinearTemp = pointLights[0]->getLinear();
+					GLfloat attenuationQuadraticTemp = pointLights[0]->getQuadratic();
+
+					pointLightColour = ImVec4(pointLights[0]->getLightColor().r, pointLights[0]->getLightColor().g, pointLights[0]->getLightColor().b, 0.0f);
+
+					if (ImGui::ColorEdit3("Light Colour##PointLight", (float*)&pointLightColour, ImGuiColorEditFlags_DisplayRGB))
+					{
+						for (PointLight* pointLight : pointLights)
+						{
+							pointLight->setLightColour(glm::vec3(pointLightColour.x, pointLightColour.y, pointLightColour.z));
+							pointLight->setDiffuseColour();
+							pointLight->setAmbientColour();
+							pointLight->setSpecularColour();
+						}
+					}
+
+					if (ImGui::SliderFloat("Ambient Intensity##PointLight", (float*)&pointLightAmbientLightStrengthTemp, 0.0f, 2.0f, "%.3f"))
+					{
+						for (PointLight* pointLight : pointLights)
+						{
+							pointLight->setAmbientIntensity(pointLightAmbientLightStrengthTemp);
+							pointLight->setAmbientColour();
+						}
+					}
+						
+					if (ImGui::SliderFloat("Diffuse Intensity##PointLight", (float*)&pointLightDiffuseLightStrengthTemp, 0.0f, 2.0f, "%.3f"))
+					{
+						for (PointLight* pointLight : pointLights)
+						{
+							pointLight->setDiffuseIntensity(pointLightDiffuseLightStrengthTemp);
+							pointLight->setDiffuseColour();
+						}
+					}
+
+					if (ImGui::SliderFloat("Specular Intensity##PointLight", (float*)&pointLightSpecularLightStrengthTemp, 0.0f, 1.0f, "%.3f"))
+					{
+						for (PointLight* pointLight : pointLights)
+						{
+							pointLight->setSpecularIntensity(pointLightSpecularLightStrengthTemp);
+							pointLight->setSpecularColour();
+						}
+					}
+
+					if (ImGui::SliderFloat("Attenuation Constant##PointLight", (float*)&attenuationConstantTemp, 0.0f, 1.0f, "%.3f"))
+					{
+						for (PointLight* pointLight : pointLights)
+						{
+							pointLight->setConstant(attenuationConstantTemp);
+						}
+					}
+
+					if (ImGui::SliderFloat("Attenuation Linear##PointLight", (float*)&attenuationLinearTemp, 0.0014f, 0.7f, "%.4f", ImGuiSliderFlags_Logarithmic))
+					{
+						for (PointLight* pointLight : pointLights)
+						{
+							pointLight->setLinear(attenuationLinearTemp);
+						}
+					}
+
+					if (ImGui::SliderFloat("Attenuation Quadratic##PointLight", (float*)&attenuationQuadraticTemp, 0.000007f, 1.8f, "%.6f", ImGuiSliderFlags_Logarithmic))
+					{
+						for (PointLight* pointLight : pointLights)
+						{
+							pointLight->setQuadratic(attenuationQuadraticTemp);
+						}
+					}
+
 				}
 
 				if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
 				{
-					float fovTemp = camera->getFOV();
+					GLfloat fovTemp = camera->getFOV();
 					if (ImGui::SliderFloat("Field of View (FOV)", &fovTemp, 1.0f, 45.0f));
 					{
 						camera->setFOV(fovTemp);
 					}
-					float nearPlaneTemp = camera->getNearPlane();
+
+					GLfloat nearPlaneTemp = camera->getNearPlane();
 					if (ImGui::SliderFloat("Near Plane", &nearPlaneTemp, 0.01f, 100.0f));
 					{
 						camera->setNearPlane(nearPlaneTemp);
 					}
-					float farPlaneTemp = camera->getFarPlane();
+
+					GLfloat farPlaneTemp = camera->getFarPlane();
 					if (ImGui::SliderFloat("Far Plane", &farPlaneTemp, 100.0f, 5000.0f));
 					{
 						camera->setFarPlane(farPlaneTemp);
@@ -286,10 +414,10 @@ void GraphicsEngine::run()
 
 				if (ImGui::CollapsingHeader("Boxing", ImGuiTreeNodeFlags_DefaultOpen))
 				{
-					GLuint shininessValue = directionalLight->getShininessValue();
-					if (ImGui::SliderInt("Shininess Value", (GLint*)&shininessValue, 1, 256))
+					GLuint shininessValueTemp = directionalLight->getShininessValue();
+					if (ImGui::SliderInt("Shininess Value", (GLint*)&shininessValueTemp, 1, 256))
 					{
-						directionalLight->setShininessValue(shininessValue);
+						directionalLight->setShininessValue(shininessValueTemp);
 					}
 				}
 
@@ -328,7 +456,7 @@ void GraphicsEngine::run()
 			glfwPollEvents(); // Handle all GLFW events
 	}
 
-		directionalLightShader->stopUsingShader();
+		lightingShader->stopUsingShader();
 		lightSourceShader->stopUsingShader();
 
 		// =========================== Memory Management - Deleting instantiated objects =====================================================
@@ -336,12 +464,17 @@ void GraphicsEngine::run()
 		delete(texture1);
 		delete(texture2);
 
-		delete(directionalLightShader);
+		delete(lightingShader);
 		delete(lightSourceShader);
 		delete(renderer);
 
 		delete(cube);
 		delete(directionalLight);
+
+		for (PointLight* pointLight : pointLights)
+		{
+			delete pointLight;
+		}
 
 		delete(VAO1);
 		delete(VBO1);
@@ -352,6 +485,11 @@ void GraphicsEngine::run()
 		delete(VBO2);
 		delete(EBO2);
 		delete(layout2);
+
+		delete(VAO3);
+		delete(VBO3);
+		delete(EBO3);
+		delete(layout3);
 
 		delete(camera); 
 }

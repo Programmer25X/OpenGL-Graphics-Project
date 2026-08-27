@@ -1,87 +1,74 @@
 #include "Lighting.h"
 
 
-Lighting::Lighting(const glm::vec3& pLightColor, const GLfloat pAmbientStrength, const GLfloat pDiffuseStrength,  const GLint pShininessValue)
+Lighting::Lighting(const glm::vec3& pLightColor, const GLfloat pAmbientStrength, const GLfloat pDiffuseStrength, const GLfloat pSpecularStrength, const GLint pShininessValue)
 {
-	lightColor = pLightColor;
+	lightColour = pLightColor;
 	ambientStrength = pAmbientStrength;
 	diffuseStrength = pDiffuseStrength;
+	specularStrength = pSpecularStrength; 
 	shininessValue = pShininessValue;
 }
 
-const glm::vec3 Lighting::getLightColor() const { return lightColor; }
+const glm::vec3 Lighting::getLightColor() const { return lightColour; }
 
 const std::vector<GLuint> Lighting::getIndices() const { return indices; }
 
 const std::vector<GLfloat> Lighting::getVerticies() const { return verticies; }
 
-
-void Lighting::setLightColour(const glm::vec3& pLightColor)
-{
-	lightColor = pLightColor; 
-}
+void Lighting::setLightColour(const glm::vec3& pLightColor) { lightColour = pLightColor; }
 
 
 // Ambient Lighting 
 
-const glm::vec3 Lighting::getAmbientColor() const { return ambientColor; }
+const glm::vec3 Lighting::getAmbientColour() const { return ambientColour; }
 
-const GLfloat Lighting::getAmbientStrength() const { return ambientStrength; }
+const GLfloat Lighting::getAmbientIntensity() const { return ambientStrength; }
 
-void Lighting::setAmbientColour()
-{
-	ambientColor = lightColor * ambientStrength;
-}
+void Lighting::setAmbientColour() { ambientColour = lightColour * ambientStrength; }
 
-void Lighting::setAmbientStrength(const GLfloat pAmbientStrength)
-{
-	ambientStrength = pAmbientStrength;
-}
+void Lighting::setAmbientIntensity(const GLfloat pAmbientStrength) { ambientStrength = pAmbientStrength; }
 
 
 // Diffuse Lighting 
 
+void Lighting::setLightPosition(const glm::vec3& pLightPosition) { lightPosition = pLightPosition; }
 
-void Lighting::setLightPosition(const glm::vec3& pLightPosition)
-{
-	lightPosition = pLightPosition;
-}
+void Lighting::setDiffuseColour() { diffuseColour = lightColour * diffuseStrength; }
 
-void Lighting::setDiffuseColour()
-{
-	diffuseColor = lightColor * diffuseStrength;
-}
+void Lighting::setDiffuseIntensity(const GLfloat pDiffuseStrength) { diffuseStrength = pDiffuseStrength; }
 
-void Lighting::setDiffuseStrength(const GLfloat pDiffuseStrength)
-{
-	diffuseStrength = pDiffuseStrength; 
-}
+const GLfloat Lighting::getDiffuseIntensity() const { return diffuseStrength; }
 
-const GLfloat Lighting::getDiffuseStrength() const { return diffuseStrength; }
-
-const glm::vec3 Lighting::getDiffuseColor() const { return diffuseColor; }
+const glm::vec3 Lighting::getDiffuseColour() const { return diffuseColour; }
 
 const glm::vec3 Lighting::getLightPosition() const { return lightPosition; }
 
 
 // Specular Lighting 
 
+const GLfloat Lighting::getSpecularIntensity() const { return specularStrength; }
+
 const GLint Lighting::getShininessValue() const { return shininessValue; }
 
-void Lighting::setShininessValue(const GLint pShininessValue)
-{
-	shininessValue = pShininessValue;
-}
+const glm::vec3 Lighting::getSpecularColour() const { return specularColour; }
+
+void Lighting::setSpecularIntensity(const GLfloat pSpecularStrength) { specularStrength = pSpecularStrength; }
+
+void Lighting::setSpecularColour() { specularColour = lightColour * specularStrength; }
+
+void Lighting::setShininessValue(const GLint pShininessValue) { shininessValue = pShininessValue; }
 
 
 // ======================================== Directional Lighting ======================================================= //
 
 
-DirectionalLight::DirectionalLight(const glm::vec3& pLightColor, const GLfloat pAmbientStrength, const GLfloat pDiffuseStrength, const GLint pShininessValue)
+DirectionalLight::DirectionalLight(const glm::vec3& pLightColor, const GLfloat pAmbientStrength, const GLfloat pDiffuseStrength, const GLfloat pSpecularStrength, const GLint pShininessValue)
 {
-	lightColor = pLightColor;
+	lightColour = pLightColor;
 	ambientStrength = pAmbientStrength;
 	diffuseStrength = pDiffuseStrength;
+	specularStrength = pSpecularStrength;
 	shininessValue = pShininessValue;
 	lightDirection = -lightPosition;
 }
@@ -89,14 +76,29 @@ DirectionalLight::DirectionalLight(const glm::vec3& pLightColor, const GLfloat p
 const glm::vec3 DirectionalLight::getLightDirection() const { return lightDirection; }
 
 
-
 // ======================================== Point Light ============================================================= //
 
 
-PointLight::PointLight(const glm::vec3& pLightColor, const GLfloat pAmbientStrength, const GLfloat pDiffuseStrength, const GLint pShininessValue)
+PointLight::PointLight(const glm::vec3& pLightColor, const GLfloat pConstant, const GLfloat pLinear, const GLfloat pQuadratic, const GLfloat pAmbientStrength, const GLfloat pDiffuseStrength, const GLfloat pSpecularStrength, const GLint pShininessValue)
 {
-	lightColor = pLightColor;
+	lightColour = pLightColor;
 	ambientStrength = pAmbientStrength;
 	diffuseStrength = pDiffuseStrength;
+	specularStrength = pSpecularStrength;
 	shininessValue = pShininessValue;
+	constant = pConstant;
+	linear = pLinear;
+	quadratic = pQuadratic;
 }
+
+const GLfloat PointLight::getConstant() const { return constant; }
+
+const GLfloat PointLight::getLinear() const { return linear; }
+
+const GLfloat PointLight::getQuadratic() const { return quadratic; }
+
+void PointLight::setConstant(const GLfloat pConstant) { constant = pConstant; }
+
+void PointLight::setLinear(const GLfloat pLinear) { linear = pLinear; }
+
+void PointLight::setQuadratic(const GLfloat pQuadratic) { quadratic = pQuadratic; }

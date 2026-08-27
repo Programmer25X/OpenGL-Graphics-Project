@@ -54,10 +54,10 @@ void main()
 
     vec3 result = calculateDirectionalLight(u_directionalLight, norm, viewDir);
 
-    // for(int i = 0; i < NR_POINT_LIGHTS; i++)
-    //{
-    //    result += calculatePointLight(u_pointLight[i], norm, FragPos, viewDir); 
-    //}
+    for(int i = 0; i < NR_POINT_LIGHTS; i++)
+    {
+       result += calculatePointLight(u_pointLight[i], norm, FragPos, viewDir); 
+    }
 
     FragColor = vec4(result, 1.0); 
 }
@@ -86,8 +86,8 @@ vec3 calculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewD
 {
     vec3 lightDirection = normalize(light.position - FragPos); 
 
-    // Ambient Lighting 
-    vec3 ambient = light.ambient * vec3(texture(u_material.diffuse, v_TexCoord));
+    // Ambient Lighting
+    vec3 ambient  = light.ambient * vec3(texture(u_material.diffuse, v_TexCoord));
 
     // Diffuse Lighting 
     float diff = max(dot(normal, lightDirection), 0.0);

@@ -32,7 +32,7 @@ void Renderer::draw(const VertexArrayObject& VAO, const ElementBufferObject& EBO
 	LOG_ERRORS(VAO.bind());
 	LOG_ERRORS(EBO.bind());
 
-	   glDrawArrays(GL_TRIANGLES, 0, 36);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 	// LOG_ERRORS(glDrawElements(GL_TRIANGLES, EBO.getElementCount(), GL_UNSIGNED_INT, NULL))
 }
 
