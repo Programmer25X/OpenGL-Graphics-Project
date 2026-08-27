@@ -43,7 +43,7 @@ void GraphicsEngine::run()
 	BasicCube* cube = new BasicCube;
 
 	DirectionalLight* directionalLight = new DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f));
-
+	SpotLight* spotlight = new SpotLight(glm::vec3(1.0f, 1.0f, 1.0f));
 	PointLight* pointLights[4] = {};
 	pointLights[0] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
 	pointLights[1] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
@@ -60,6 +60,7 @@ void GraphicsEngine::run()
 
 	ImVec4 directionalLightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 	ImVec4 pointLightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+	ImVec4 spotlightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 	ImVec4 clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	GLint bufferWidth;
@@ -206,7 +207,7 @@ void GraphicsEngine::run()
 
 				// Directional Light
 				lightingShader->setUniformVector3("u_directionalLight.direction", directionalLight->getLightPosition().x, directionalLight->getLightPosition().y, directionalLight->getLightPosition().z);
-				lightingShader->setUniformVector3("u_viewPosition", camera->getCameraPosition().x, camera->getCameraPosition().y, camera->getCameraPosition().z);
+				lightingShader->setUniformVector3("u_viewPosition", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
 				lightingShader->setUniformVector3("u_directionalLight.ambient", directionalLight->getAmbientColour().r, directionalLight->getAmbientColour().g, directionalLight->getAmbientColour().b);
 				lightingShader->setUniformVector3("u_directionalLight.diffuse", directionalLight->getDiffuseColour().r, directionalLight->getDiffuseColour().g, directionalLight->getDiffuseColour().b);
 				lightingShader->setUniformVector3("u_directionalLight.specular", directionalLight->getSpecularColour().r, directionalLight->getSpecularColour().g, directionalLight->getSpecularColour().b);
@@ -223,6 +224,18 @@ void GraphicsEngine::run()
 					lightingShader->setUniform1f(pointLightUniform + "linear", pointLights[i]->getLinear());
 					lightingShader->setUniform1f(pointLightUniform + "quadratic", pointLights[i]->getQuadratic());
 				}
+
+				// Spotlight 
+				lightingShader->setUniformVector3("u_spotLight.position", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+				lightingShader->setUniformVector3("u_spotLight.direction", camera->getFront().x, camera->getFront().y, camera->getFront().z);
+				lightingShader->setUniform1f("u_spotLight.innerCutOff", spotlight->getInnerCutOff());
+				lightingShader->setUniform1f("u_spotLight.outerCutOff", spotlight->getOuterCutOff());
+				lightingShader->setUniformVector3("u_spotLight.ambient", spotlight->getAmbientColour().r, spotlight->getAmbientColour().g, spotlight->getAmbientColour().b);
+				lightingShader->setUniformVector3("u_spotLight.diffuse", spotlight->getDiffuseColour().r, spotlight->getDiffuseColour().g, spotlight->getDiffuseColour().b);
+				lightingShader->setUniformVector3("u_spotLight.specular", spotlight->getSpecularColour().r, spotlight->getSpecularColour().g, spotlight->getSpecularColour().b);
+				lightingShader->setUniform1f("u_spotLight.constant", spotlight->getConstant());
+				lightingShader->setUniform1f("u_spotLight.linear", spotlight->getLinear());
+				lightingShader->setUniform1f("u_spotLight.quadratic", spotlight->getQuadratic());
 
 				// Boxes
 				lightingShader->setUniform1f("u_material.shininess", static_cast<GLfloat>(directionalLight->getShininessValue()));
@@ -388,7 +401,71 @@ void GraphicsEngine::run()
 							pointLight->setQuadratic(attenuationQuadraticTemp);
 						}
 					}
+				}
 
+				if (ImGui::CollapsingHeader("Spotlight", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					GLfloat spotlightAmbientLightStrengthTemp = spotlight->getAmbientIntensity();
+					GLfloat spotlightDiffuseLightStrengthTemp = spotlight->getDiffuseIntensity();
+					GLfloat spotlightSpecularLightStrengthTemp = spotlight->getSpecularIntensity();
+
+					GLfloat attenuationConstantTemp = spotlight->getConstant();
+					GLfloat attenuationLinearTemp = spotlight->getLinear();
+					GLfloat attenuationQuadraticTemp = spotlight->getQuadratic();
+
+					GLfloat innerCutOffTemp = spotlight->getInnerCutOff();
+					GLfloat outerCutOffTemp = spotlight->getOuterCutOff();
+
+					if (ImGui::ColorEdit3("Light Colour##Spotlight", (float*)&spotlightColour, ImGuiColorEditFlags_DisplayRGB))
+					{
+						spotlight->setLightColour(glm::vec3(spotlightColour.x, spotlightColour.y, spotlightColour.z));
+						spotlight->setDiffuseColour();
+						spotlight->setAmbientColour();
+						spotlight->setSpecularColour();
+					}
+
+					if (ImGui::SliderFloat("Ambient Intensity##Spotlight", (float*)&spotlightAmbientLightStrengthTemp, 0.0f, 2.0f, "%.3f"))
+					{
+						spotlight->setAmbientIntensity(spotlightAmbientLightStrengthTemp);
+						spotlight->setAmbientColour();
+					}
+
+					if (ImGui::SliderFloat("Diffuse Intensity##Spotlight", (float*)&spotlightDiffuseLightStrengthTemp, 0.0f, 2.0f, "%.3f"))
+					{
+						spotlight->setDiffuseIntensity(spotlightDiffuseLightStrengthTemp);
+						spotlight->setDiffuseColour();
+					}
+
+					if (ImGui::SliderFloat("Specular Intensity##Spotlight", (float*)&spotlightSpecularLightStrengthTemp, 0.0f, 1.0f, "%.3f"))
+					{
+						spotlight->setSpecularIntensity(spotlightSpecularLightStrengthTemp);
+						spotlight->setSpecularColour();
+					}
+
+					if (ImGui::SliderFloat("Attenuation Constant##Spotlight", (float*)&attenuationConstantTemp, 0.0f, 1.0f, "%.3f"))
+					{
+						spotlight->setConstant(attenuationConstantTemp);
+					}
+
+					if (ImGui::SliderFloat("Attenuation Linear##Spotlight", (float*)&attenuationLinearTemp, 0.0014f, 0.7f, "%.4f", ImGuiSliderFlags_Logarithmic))
+					{
+						spotlight->setLinear(attenuationLinearTemp);
+					}
+
+					if (ImGui::SliderFloat("Attenuation Quadratic##Spotlight", (float*)&attenuationQuadraticTemp, 0.000007f, 1.8f, "%.6f", ImGuiSliderFlags_Logarithmic))
+					{
+						spotlight->setQuadratic(attenuationQuadraticTemp);
+					}
+
+					if (ImGui::SliderFloat("Inner Cut Off##Spotlight", (float*)&innerCutOffTemp, -1.0f, 1.0f, "%.3f"))
+					{
+						spotlight->setInnerCutOff(innerCutOffTemp);
+					}
+
+					if (ImGui::SliderFloat("Outer Cut Off##Spotlight", (float*)&outerCutOffTemp, -1.0f, 1.0f, "%.3f"))
+					{
+						spotlight->setOuterCutOff(outerCutOffTemp);
+					}
 				}
 
 				if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))

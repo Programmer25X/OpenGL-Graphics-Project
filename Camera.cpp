@@ -25,7 +25,9 @@ const glm::mat4 Camera::getViewMatrix() const { return glm::lookAt(cameraPositio
 const glm::mat4 Camera::getProjectionMatrix(const GLfloat bufferWidth, const GLfloat bufferHeight, const GLfloat nearPlane, const GLfloat farPlane) const 
 { return glm::perspective(glm::radians(fieldOfView), static_cast<GLfloat>(bufferWidth / bufferHeight), nearPlane, farPlane); }
 
-const glm::vec3 Camera::getCameraPosition() const { return cameraPosition; }
+const glm::vec3 Camera::getPosition() const { return cameraPosition; }
+
+const glm::vec3 Camera::getFront() const { return cameraFront; }
 
 const GLfloat Camera::getFOV() const { return fieldOfView; }
 
@@ -33,22 +35,11 @@ const GLfloat Camera::getNearPlane() const { return nearPlane; }
 
 const GLfloat Camera::getFarPlane() const { return farPlane; }
 
+void Camera::setFOV(GLfloat pFOV) { fieldOfView = pFOV; }
 
+void Camera::setNearPlane(GLfloat pNearPlane) { nearPlane = pNearPlane; }
 
-void Camera::setFOV(GLfloat value)
-{
-	fieldOfView = value;
-}
-
-void Camera::setNearPlane(GLfloat value)
-{
-	nearPlane = value;
-}
-
-void Camera::setFarPlane(GLfloat value)
-{
-	farPlane = value; 
-}
+void Camera::setFarPlane(GLfloat pFarPlane) { farPlane = pFarPlane; }
 
 
 void Camera::processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window)

@@ -36,14 +36,15 @@ private:
 public:
 	const glm::mat4 getViewMatrix() const; 
 	const glm::mat4 getProjectionMatrix(const GLfloat bufferWidth, const GLfloat bufferHeight, const GLfloat nearPlane = 0.1f, const GLfloat farPlane = 1000.0f) const;
-	const glm::vec3 getCameraPosition() const; 
+	const glm::vec3 getPosition() const;
+	const glm::vec3 getFront() const;
 	const GLfloat getFOV() const;
 	const GLfloat getNearPlane() const;
 	const GLfloat getFarPlane() const;
 
-	void setFOV(GLfloat value);
-	void setNearPlane(GLfloat value);
-	void setFarPlane(GLfloat value);
+	void setFOV(GLfloat pFOV);
+	void setNearPlane(GLfloat pNearPlane);
+	void setFarPlane(GLfloat pFarPlane);
 
 
 	void processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window);

@@ -36,6 +36,7 @@ protected:
 	glm::vec3 specularColour = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	glm::vec3 lightPosition = glm::vec3(120.0f, 120.0f, 200.0f);
+	glm::vec3 lightDirection = glm::vec3(0, 0, 0);
 
 	GLint shininessValue = 0;
 
@@ -113,16 +114,20 @@ public:
 
 	void setLightColour(const glm::vec3& pLightColor);
 
+	const glm::vec3 getLightPosition() const;
+	const glm::vec3 getLightDirection() const;
+
 	// Ambient Lighting 
 	const glm::vec3 getAmbientColour() const;
 	const GLfloat getAmbientIntensity() const;
+
 	void setAmbientColour(); 
 	void setAmbientIntensity(const GLfloat pAmbientStrength);
 
 	// Diffuse Lighting
-	const glm::vec3 getLightPosition() const;
 	const glm::vec3 getDiffuseColour() const;
 	const GLfloat getDiffuseIntensity() const; 
+
 	void setLightPosition(const glm::vec3& pLightPosition);
 	void setDiffuseColour();
 	void setDiffuseIntensity(const GLfloat pDiffuseStrength);
@@ -131,6 +136,7 @@ public:
 	const GLfloat getSpecularIntensity() const;
 	const GLint getShininessValue() const;
 	const glm::vec3 getSpecularColour() const;
+
 	void setSpecularIntensity(const GLfloat pSpecularStrength);
 	void setSpecularColour();
 	void setShininessValue(const GLint pShininessValue);
@@ -144,13 +150,6 @@ class DirectionalLight : public Lighting
 
 public:
 	DirectionalLight(const glm::vec3& pLightColor = glm::vec3(0.0f, 1.0f, 1.0f), const GLfloat pAmbientStrength = 0.0125f, const GLfloat pDiffuseStrength = 0.0f, const GLfloat pSpecularStrength = 1.0f, const GLint pShininessValue = 32);
-
-private:
-	glm::vec3 lightDirection = glm::vec3(0, 0, 0);
-
-public:
-	const glm::vec3 getLightDirection() const;
-
 };
 
 
@@ -181,7 +180,31 @@ public:
 
 class SpotLight : public Lighting
 {
+public:
+	SpotLight(const glm::vec3& pLightColor = glm::vec3(0.0f, 1.0f, 1.0f), const GLfloat pInnerCutOff = glm::cos(glm::radians(12.5f)), const GLfloat pOuterCutOff = glm::cos(glm::radians(15.0f)), const GLfloat pConstant = 1.0f, const GLfloat pLinear = 0.0014f, const GLfloat pQuadratic = 0.000007f, const GLfloat pAmbientStrength = 2.0f, const GLfloat pDiffuseStrength = 2.0f, const GLfloat pSpecularStrength = 1.0f, const GLint pShininessValue = 32);
 
+private:
+	GLfloat innerCutOff = 0.0f;
+	GLfloat outerCutOff = 0.0f; 
+
+	GLfloat constant = 0.0f;
+	GLfloat linear = 0.0f;
+	GLfloat quadratic = 0.0f;
+
+public:
+	const GLfloat getInnerCutOff() const;
+	const GLfloat getOuterCutOff() const; 
+
+	const GLfloat getConstant() const;
+	const GLfloat getLinear() const;
+	const GLfloat getQuadratic() const;
+
+	void setInnerCutOff(const GLfloat pInnerCutOff);
+	void setOuterCutOff(const GLfloat pOuterCutOff); 
+
+	void setConstant(const GLfloat pConstant);
+	void setLinear(const GLfloat PLinear);
+	void setQuadratic(const GLfloat pQuadratic);
 };
 
 #endif

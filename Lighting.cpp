@@ -18,6 +18,10 @@ const std::vector<GLfloat> Lighting::getVerticies() const { return verticies; }
 
 void Lighting::setLightColour(const glm::vec3& pLightColor) { lightColour = pLightColor; }
 
+void Lighting::setLightPosition(const glm::vec3& pLightPosition) { lightPosition = pLightPosition; }
+
+const glm::vec3 Lighting::getLightDirection() const { return lightDirection; }
+
 
 // Ambient Lighting 
 
@@ -31,8 +35,6 @@ void Lighting::setAmbientIntensity(const GLfloat pAmbientStrength) { ambientStre
 
 
 // Diffuse Lighting 
-
-void Lighting::setLightPosition(const glm::vec3& pLightPosition) { lightPosition = pLightPosition; }
 
 void Lighting::setDiffuseColour() { diffuseColour = lightColour * diffuseStrength; }
 
@@ -60,7 +62,7 @@ void Lighting::setSpecularColour() { specularColour = lightColour * specularStre
 void Lighting::setShininessValue(const GLint pShininessValue) { shininessValue = pShininessValue; }
 
 
-// ======================================== Directional Lighting ======================================================= //
+// ======================================== Directional Light ======================================================= //
 
 
 DirectionalLight::DirectionalLight(const glm::vec3& pLightColor, const GLfloat pAmbientStrength, const GLfloat pDiffuseStrength, const GLfloat pSpecularStrength, const GLint pShininessValue)
@@ -72,9 +74,6 @@ DirectionalLight::DirectionalLight(const glm::vec3& pLightColor, const GLfloat p
 	shininessValue = pShininessValue;
 	lightDirection = -lightPosition;
 }
-
-const glm::vec3 DirectionalLight::getLightDirection() const { return lightDirection; }
-
 
 // ======================================== Point Light ============================================================= //
 
@@ -102,3 +101,41 @@ void PointLight::setConstant(const GLfloat pConstant) { constant = pConstant; }
 void PointLight::setLinear(const GLfloat pLinear) { linear = pLinear; }
 
 void PointLight::setQuadratic(const GLfloat pQuadratic) { quadratic = pQuadratic; }
+
+
+// ======================================== Spot Light ============================================================= //
+
+
+SpotLight::SpotLight(const glm::vec3& pLightColor, const GLfloat pInnerCutOff, const GLfloat pOuterCutOff, const GLfloat pConstant, const GLfloat pLinear, const GLfloat pQuadratic, const GLfloat pAmbientStrength, const GLfloat pDiffuseStrength, const GLfloat pSpecularStrength, const GLint pShininessValue)
+{
+	lightColour = pLightColor;
+	ambientStrength = pAmbientStrength;
+	diffuseStrength = pDiffuseStrength;
+	specularStrength = pSpecularStrength;
+	shininessValue = pShininessValue;
+	constant = pConstant;
+	linear = pLinear;
+	quadratic = pQuadratic;
+	innerCutOff = pInnerCutOff;
+	outerCutOff = pOuterCutOff; 
+}
+
+const GLfloat SpotLight::getInnerCutOff() const { return innerCutOff; }
+
+const GLfloat SpotLight::getOuterCutOff() const { return outerCutOff; }
+
+const GLfloat SpotLight::getConstant() const { return constant; }
+
+const GLfloat SpotLight::getLinear() const { return linear; }
+
+const GLfloat SpotLight::getQuadratic() const { return quadratic; }
+
+void SpotLight::setInnerCutOff(const GLfloat pInnerCutOff) { innerCutOff = pInnerCutOff; }
+
+void SpotLight::setOuterCutOff(const GLfloat pOuterCutOff) { outerCutOff = pOuterCutOff; }
+
+void SpotLight::setConstant(const GLfloat pConstant) { constant = pConstant; }
+
+void SpotLight::setLinear(const GLfloat pLinear) { linear = pLinear; }
+
+void SpotLight::setQuadratic(const GLfloat pQuadratic) { quadratic = pQuadratic; }
