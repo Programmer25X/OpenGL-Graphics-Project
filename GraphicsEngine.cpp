@@ -27,7 +27,33 @@ GLfloat lastXPosition = 800.0f / 2.0f;
 GLfloat lastYPosition = 600.0f / 2.0f;
 GLboolean firstMouseInput = GL_TRUE;
 
-Camera* camera = new Camera;
+
+BasicCube* cube = nullptr;
+
+DirectionalLight* directionalLight = nullptr;
+SpotLight* spotlight = nullptr;
+PointLight* pointLights[4] = {};
+
+Renderer* renderer = nullptr;
+
+VertexArrayObject* VAO1 = nullptr;
+VertexBufferObject* VBO1 = nullptr;
+VertexBufferLayout* layout1 = nullptr;
+ElementBufferObject* EBO1 = nullptr;
+
+VertexArrayObject* VAO2 = nullptr;
+VertexBufferObject* VBO2 = nullptr;
+VertexBufferLayout* layout2 = nullptr;
+ElementBufferObject* EBO2 = nullptr;
+
+Shader* lightingShader = nullptr;
+Shader* lightSourceShader = nullptr;
+
+Texture* texture1 = nullptr;
+Texture* texture2 = nullptr;
+
+Camera* camera = nullptr;
+
 
 static void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn);
 static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
@@ -38,19 +64,38 @@ GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 	engineWindow = pWindow;
 }
 
+GraphicsEngine::~GraphicsEngine()
+{
+	delete(texture1);
+	delete(texture2);
+
+	delete(lightingShader);
+	delete(lightSourceShader);
+	delete(renderer);
+
+	delete(cube);
+	delete(directionalLight);
+
+	for (PointLight* pointLight : pointLights)
+	{
+		delete pointLight;
+	}
+
+	delete(VAO1);
+	delete(VBO1);
+	delete(EBO1);
+	delete(layout1);
+
+	delete(VAO2);
+	delete(VBO2);
+	delete(EBO2);
+	delete(layout2);
+
+	delete(camera);
+}
+
 void GraphicsEngine::run()
 {
-	BasicCube* cube = new BasicCube;
-
-	DirectionalLight* directionalLight = new DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f));
-	SpotLight* spotlight = new SpotLight(glm::vec3(1.0f, 1.0f, 1.0f));
-	PointLight* pointLights[4] = {};
-	pointLights[0] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
-	pointLights[1] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
-	pointLights[2] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
-	pointLights[3] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
-
-
 	GLfloat aspectRatio = 0.0f; 
 
 	bool isSettingsWindowOpen = true;
@@ -65,85 +110,6 @@ void GraphicsEngine::run()
 
 	GLint bufferWidth;
 	GLint bufferHeight;
-
-	Renderer* renderer = new Renderer;
-
-
-
-	// Inform GLFW what version of OpenGL is being used
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	if (engineWindow->getWindow() == nullptr)
-	{
-		std::cerr << "Error: Failure to Create Window" << std::endl;
-		glfwTerminate();
-		return;
-	}
-
-
-	glfwMakeContextCurrent(engineWindow->getWindow());
-	glfwGetFramebufferSize(engineWindow->getWindow(), &bufferWidth, &bufferHeight);
-	glfwSetCursorPosCallback(engineWindow->getWindow(), mouse_callback);
-	glfwSetScrollCallback(engineWindow->getWindow(), scroll_callback);
-	glfwSwapInterval(1); // Syncs to frame rate (FPS)
-
-
-	glfwSetInputMode(engineWindow->getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
-
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cerr << "ERROR: Failiure to intialise GLAD" << std::endl;
-	}
-
-	Renderer::setupBlendFunctions();
-
-	// ================================ Creating ImGui Context ========================================= //
-
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); 
-	(void)io;
-	styleSettingsMenu();
-
-
-	{
-		LOG_ERRORS(glViewport(0,0, bufferWidth, bufferHeight)); // Specifies the size of the viewport
-
-		ImGui_ImplGlfw_InitForOpenGL(engineWindow->getWindow(), true);
-		ImGui_ImplOpenGL3_Init("#version 130");
- 
-		VertexArrayObject* VAO1 = new VertexArrayObject;
-		VertexBufferObject* VBO1 = new VertexBufferObject(cube->getVerticies().data(), cube->getVerticies().size());
-		VertexBufferLayout* layout1 = new VertexBufferLayout;
-		ElementBufferObject* EBO1 = new ElementBufferObject(cube->getIndices().data(), cube->getIndices().size());
-
-		VertexArrayObject* VAO2 = new VertexArrayObject;
-		VertexBufferObject* VBO2 = new VertexBufferObject(pointLights[0]->getVerticies().data(), pointLights[0]->getVerticies().size());
-		VertexBufferLayout* layout2 = new VertexBufferLayout;
-		ElementBufferObject* EBO2 = new ElementBufferObject(pointLights[0]->getIndices().data(), pointLights[0]->getVerticies().size());
-
-
-		layout1->pushElement<float>(3);
-		layout1->pushElement<float>(3);
-		layout1->pushElement<float>(2);
-
-		layout2->pushElement<float>(3);
-
-		layout2->pushElement<float>(3);
-
-		LOG_ERRORS(VAO1->addBuffer(*VBO1, *layout1)); 
-		LOG_ERRORS(VAO2->addBuffer(*VBO2, *layout2));
-		LOG_ERRORS(VAO2->addBuffer(*VBO2, *layout2));
-
-
-		engineWindow->setAspectRatio(bufferWidth, bufferHeight); 
-		const GLfloat HALF_BUFFER_WIDTH = static_cast<GLfloat>(bufferWidth) * 0.5f / engineWindow->getAspectRatio();
-		const GLfloat HALF_BUFFER_HEIGHT = static_cast<GLfloat>(bufferHeight) * 0.5f / engineWindow->getAspectRatio();
-		
-
 
 	glm::vec3 cubePositions[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
@@ -162,14 +128,66 @@ void GraphicsEngine::run()
 		glm::vec3(2.3f, -3.3f, -4.0f),
 		glm::vec3(-4.0f,  2.0f, -12.0f),
 		glm::vec3(0.0f,  0.0f, -3.0f) };
+ 
+
+// ================================ Initalising GLAD and GLFW ========================================= //
+
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	if (engineWindow->getWindow() == nullptr)
+	{
+		std::cerr << "Error: Failure to Create Window" << std::endl;
+		glfwTerminate();
+		return;
+	}
+
+	glfwMakeContextCurrent(engineWindow->getWindow());
+	glfwGetFramebufferSize(engineWindow->getWindow(), &bufferWidth, &bufferHeight);
+	glfwSetCursorPosCallback(engineWindow->getWindow(), mouse_callback);
+	glfwSetScrollCallback(engineWindow->getWindow(), scroll_callback);
+	glfwSwapInterval(1); // Syncs to frame rate (FPS)
 
 
+	glfwSetInputMode(engineWindow->getWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-		Shader* lightingShader = new Shader("DirectionalLight.vert", "DirectionalLight.frag");
-		Shader* lightSourceShader = new Shader("lightCube.vert", "lightCube.frag"); 
 
-		Texture* texture1 = new Texture("container2.png"); 
-		Texture* texture2 = new Texture("container2_specular.png");
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cerr << "ERROR: Failiure to intialise GLAD" << std::endl;
+	}
+
+
+	// ================================ Creating ImGui Context ========================================= //
+
+	Renderer::setupBlendFunctions();
+
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); 
+	(void)io;
+	styleSettingsMenu();
+
+	LOG_ERRORS(glViewport(0,0, bufferWidth, bufferHeight)); // Specifies the size of the viewport
+
+	ImGui_ImplGlfw_InitForOpenGL(engineWindow->getWindow(), true);
+	ImGui_ImplOpenGL3_Init("#version 130");
+
+	{
+		createEntities();
+
+		layout1->pushElement<float>(3);
+		layout1->pushElement<float>(3);
+		layout1->pushElement<float>(2);
+		layout2->pushElement<float>(3);
+
+		LOG_ERRORS(VAO1->addBuffer(*VBO1, *layout1)); 
+		LOG_ERRORS(VAO2->addBuffer(*VBO2, *layout2));
+
+		engineWindow->setAspectRatio(bufferWidth, bufferHeight); 
+		const GLfloat HALF_BUFFER_WIDTH = static_cast<GLfloat>(bufferWidth) * 0.5f / engineWindow->getAspectRatio();
+		const GLfloat HALF_BUFFER_HEIGHT = static_cast<GLfloat>(bufferHeight) * 0.5f / engineWindow->getAspectRatio();
+
 		texture1->bind(0); 
 		texture2->bind(1);
 
@@ -562,33 +580,6 @@ void GraphicsEngine::run()
 		lightSourceShader->stopUsingShader();
 
 		// =========================== Memory Management - Deleting instantiated objects =====================================================
-
-		delete(texture1);
-		delete(texture2);
-
-		delete(lightingShader);
-		delete(lightSourceShader);
-		delete(renderer);
-
-		delete(cube);
-		delete(directionalLight);
-
-		for (PointLight* pointLight : pointLights)
-		{
-			delete pointLight;
-		}
-
-		delete(VAO1);
-		delete(VBO1);
-		delete(EBO1);
-		delete(layout1);
-
-		delete(VAO2);
-		delete(VBO2);
-		delete(EBO2);
-		delete(layout2);
-
-		delete(camera); 
 }
 
 
@@ -598,6 +589,39 @@ void GraphicsEngine::run()
 
 	glfwDestroyWindow(engineWindow->getWindow()); // Deletes the window
 	glfwTerminate(); // Terminates the program
+}
+
+void GraphicsEngine::createEntities()
+{
+	cube = new BasicCube;
+
+	directionalLight = new DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f));
+	spotlight = new SpotLight(glm::vec3(1.0f, 1.0f, 1.0f));
+
+	for (GLuint i = 0; i < (sizeof(pointLights) / sizeof(pointLights[0])); i++)
+	{
+		pointLights[i] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
+	}
+
+	renderer = new Renderer;
+
+	VAO1 = new VertexArrayObject();
+	VBO1 = new VertexBufferObject(cube->getVerticies().data(), cube->getVerticies().size());
+	layout1 = new VertexBufferLayout();
+	EBO1 = new ElementBufferObject(cube->getIndices().data(), cube->getIndices().size());
+
+	VAO2 = new VertexArrayObject;
+	VBO2 = new VertexBufferObject(pointLights[0]->getVerticies().data(), pointLights[0]->getVerticies().size());
+	layout2 = new VertexBufferLayout;
+	EBO2 = new ElementBufferObject(pointLights[0]->getIndices().data(), pointLights[0]->getVerticies().size());
+
+	lightingShader = new Shader("DirectionalLight.vert", "DirectionalLight.frag");
+	lightSourceShader = new Shader("lightCube.vert", "lightCube.frag");
+
+	texture1 = new Texture("container2.png");
+	texture2 = new Texture("container2_specular.png");
+
+	camera = new Camera;
 }
 
 void GraphicsEngine::styleSettingsMenu()

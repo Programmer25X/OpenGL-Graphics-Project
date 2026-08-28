@@ -14,12 +14,14 @@ class GraphicsEngine
 {
 public:
 	GraphicsEngine(EngineWindow* pWindow);
+	~GraphicsEngine();
 
 private:
 	EngineWindow* engineWindow;
 
 public:
 	void run();
+	void createEntities();
 	void styleSettingsMenu();
 };
 
