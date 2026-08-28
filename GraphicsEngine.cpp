@@ -121,14 +121,9 @@ void GraphicsEngine::run()
 		ElementBufferObject* EBO1 = new ElementBufferObject(cube->getIndices().data(), cube->getIndices().size());
 
 		VertexArrayObject* VAO2 = new VertexArrayObject;
-		VertexBufferObject* VBO2 = new VertexBufferObject(directionalLight->getVerticies().data(), directionalLight->getVerticies().size());
+		VertexBufferObject* VBO2 = new VertexBufferObject(pointLights[0]->getVerticies().data(), pointLights[0]->getVerticies().size());
 		VertexBufferLayout* layout2 = new VertexBufferLayout;
-		ElementBufferObject* EBO2 = new ElementBufferObject(directionalLight->getIndices().data(), directionalLight->getVerticies().size());
-
-		VertexArrayObject* VAO3 = new VertexArrayObject;
-		VertexBufferObject* VBO3 = new VertexBufferObject(pointLights[0]->getVerticies().data(), pointLights[0]->getVerticies().size());
-		VertexBufferLayout* layout3 = new VertexBufferLayout;
-		ElementBufferObject* EBO3 = new ElementBufferObject(pointLights[0]->getIndices().data(), pointLights[0]->getVerticies().size());
+		ElementBufferObject* EBO2 = new ElementBufferObject(pointLights[0]->getIndices().data(), pointLights[0]->getVerticies().size());
 
 
 		layout1->pushElement<float>(3);
@@ -137,11 +132,11 @@ void GraphicsEngine::run()
 
 		layout2->pushElement<float>(3);
 
-		layout3->pushElement<float>(3);
+		layout2->pushElement<float>(3);
 
 		LOG_ERRORS(VAO1->addBuffer(*VBO1, *layout1)); 
 		LOG_ERRORS(VAO2->addBuffer(*VBO2, *layout2));
-		LOG_ERRORS(VAO3->addBuffer(*VBO3, *layout3));
+		LOG_ERRORS(VAO2->addBuffer(*VBO2, *layout2));
 
 
 		engineWindow->setAspectRatio(bufferWidth, bufferHeight); 
@@ -281,7 +276,7 @@ void GraphicsEngine::run()
 					modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f)); // a smaller cube
 					lightSourceShader->setUniformMatrix4f("u_model", modelMatrix);
 					lightSourceShader->setUniformVector3("u_lightSourceColour", pointLights[i]->getLightColor().r, pointLights[i]->getLightColor().g, pointLights[i]->getLightColor().b);
-					renderer->draw(*VAO3, *EBO3, *lightSourceShader); 
+					renderer->draw(*VAO2, *EBO2, *lightSourceShader); 
 				}
 
 				// =========================== Real-Time Updates and ImGUI ===================================================== //
@@ -296,6 +291,8 @@ void GraphicsEngine::run()
 					GLfloat sceneDiffuseLightStrengthTemp = directionalLight->getDiffuseIntensity();
 					GLfloat sceneSpecularLightStrengthTemp = directionalLight->getSpecularIntensity();
 
+					ImGui::SeparatorText("Colour");
+
 					if (ImGui::ColorEdit3("Light Colour##DirectionalLight", (float*)&directionalLightColour), ImGuiColorEditFlags_DisplayRGB)
 					{
 						directionalLight->setLightColour(glm::vec3(directionalLightColour.x, directionalLightColour.y, directionalLightColour.z));
@@ -303,6 +300,13 @@ void GraphicsEngine::run()
 						directionalLight->setDiffuseColour();
 						directionalLight->setSpecularColour();
 					}
+
+					if (ImGui::ColorEdit3("Background Colour", (float*)&clearColour, ImGuiColorEditFlags_DisplayRGB));
+					{
+						LOG_ERRORS(glClearColor(clearColour.x, clearColour.y, clearColour.z, clearColour.w));
+					}
+
+					ImGui::SeparatorText("Phong Lighting");
 
 					if (ImGui::SliderFloat("Ambient Intensity##DirectionalLight", (float*)&sceneAmbientLightStrengthTemp, 0.013f, 1.0f, "%.3f"))
 					{
@@ -322,10 +326,7 @@ void GraphicsEngine::run()
 						directionalLight->setSpecularColour();
 					}
 
-					if(ImGui::ColorEdit3("Background Colour", (float*)&clearColour, ImGuiColorEditFlags_DisplayRGB));
-					{
-						LOG_ERRORS(glClearColor(clearColour.x, clearColour.y, clearColour.z, clearColour.w));
-					}
+					ImGui::NewLine();
 				}
 
 				if (ImGui::CollapsingHeader("Point Lighting", ImGuiTreeNodeFlags_DefaultOpen))
@@ -340,6 +341,8 @@ void GraphicsEngine::run()
 
 					pointLightColour = ImVec4(pointLights[0]->getLightColor().r, pointLights[0]->getLightColor().g, pointLights[0]->getLightColor().b, 0.0f);
 
+					ImGui::SeparatorText("Colour");
+
 					if (ImGui::ColorEdit3("Light Colour##PointLight", (float*)&pointLightColour, ImGuiColorEditFlags_DisplayRGB))
 					{
 						for (PointLight* pointLight : pointLights)
@@ -350,6 +353,8 @@ void GraphicsEngine::run()
 							pointLight->setSpecularColour();
 						}
 					}
+
+					ImGui::SeparatorText("Phong Lighting");
 
 					if (ImGui::SliderFloat("Ambient Intensity##PointLight", (float*)&pointLightAmbientLightStrengthTemp, 0.0f, 2.0f, "%.3f"))
 					{
@@ -378,6 +383,8 @@ void GraphicsEngine::run()
 						}
 					}
 
+					ImGui::SeparatorText("Attenuation");
+
 					if (ImGui::SliderFloat("Attenuation Constant##PointLight", (float*)&attenuationConstantTemp, 0.0f, 1.0f, "%.3f"))
 					{
 						for (PointLight* pointLight : pointLights)
@@ -401,6 +408,8 @@ void GraphicsEngine::run()
 							pointLight->setQuadratic(attenuationQuadraticTemp);
 						}
 					}
+
+					ImGui::NewLine();
 				}
 
 				if (ImGui::CollapsingHeader("Spotlight", ImGuiTreeNodeFlags_DefaultOpen))
@@ -413,8 +422,10 @@ void GraphicsEngine::run()
 					GLfloat attenuationLinearTemp = spotlight->getLinear();
 					GLfloat attenuationQuadraticTemp = spotlight->getQuadratic();
 
-					GLfloat innerCutOffTemp = spotlight->getInnerCutOff();
-					GLfloat outerCutOffTemp = spotlight->getOuterCutOff();
+					GLfloat innerCutOffTemp = glm::degrees(glm::acos(spotlight->getInnerCutOff()));
+					GLfloat outerCutOffTemp = glm::degrees(glm::acos(spotlight->getOuterCutOff()));
+
+					ImGui::SeparatorText("Colour");
 
 					if (ImGui::ColorEdit3("Light Colour##Spotlight", (float*)&spotlightColour, ImGuiColorEditFlags_DisplayRGB))
 					{
@@ -423,6 +434,8 @@ void GraphicsEngine::run()
 						spotlight->setAmbientColour();
 						spotlight->setSpecularColour();
 					}
+
+					ImGui::SeparatorText("Phong Lighting");
 
 					if (ImGui::SliderFloat("Ambient Intensity##Spotlight", (float*)&spotlightAmbientLightStrengthTemp, 0.0f, 2.0f, "%.3f"))
 					{
@@ -442,6 +455,8 @@ void GraphicsEngine::run()
 						spotlight->setSpecularColour();
 					}
 
+					ImGui::SeparatorText("Attenuation");
+
 					if (ImGui::SliderFloat("Attenuation Constant##Spotlight", (float*)&attenuationConstantTemp, 0.0f, 1.0f, "%.3f"))
 					{
 						spotlight->setConstant(attenuationConstantTemp);
@@ -457,50 +472,60 @@ void GraphicsEngine::run()
 						spotlight->setQuadratic(attenuationQuadraticTemp);
 					}
 
-					if (ImGui::SliderFloat("Inner Cut Off##Spotlight", (float*)&innerCutOffTemp, -1.0f, 1.0f, "%.3f"))
+					ImGui::SeparatorText("Spotlight Cone");
+
+					if (ImGui::SliderFloat("Inner Cone Angle##Spotlight", (float*)&innerCutOffTemp, 0.0f, 90.0f, "%.2f"))
 					{
 						spotlight->setInnerCutOff(innerCutOffTemp);
 					}
 
-					if (ImGui::SliderFloat("Outer Cut Off##Spotlight", (float*)&outerCutOffTemp, -1.0f, 1.0f, "%.3f"))
+					if (ImGui::SliderFloat("Outer Cone Angle##Spotlight", (float*)&outerCutOffTemp, 0.0f, 90.0f, "%.2f"))
 					{
 						spotlight->setOuterCutOff(outerCutOffTemp);
 					}
+
+					ImGui::NewLine();
 				}
 
-				if (ImGui::CollapsingHeader("Camera", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::CollapsingHeader("Camera"))
 				{
 					GLfloat fovTemp = camera->getFOV();
-					if (ImGui::SliderFloat("Field of View (FOV)", &fovTemp, 1.0f, 45.0f));
+					if (ImGui::SliderFloat("Field of View (FOV)##Camera", &fovTemp, 1.0f, 45.0f, "%.2f"));
 					{
 						camera->setFOV(fovTemp);
 					}
 
 					GLfloat nearPlaneTemp = camera->getNearPlane();
-					if (ImGui::SliderFloat("Near Plane", &nearPlaneTemp, 0.01f, 100.0f));
+					if (ImGui::SliderFloat("Near Plane##Camera", &nearPlaneTemp, 0.01f, 100.0f, "%.2f"));
 					{
 						camera->setNearPlane(nearPlaneTemp);
 					}
 
 					GLfloat farPlaneTemp = camera->getFarPlane();
-					if (ImGui::SliderFloat("Far Plane", &farPlaneTemp, 100.0f, 5000.0f));
+					if (ImGui::SliderFloat("Far Plane##Camera", &farPlaneTemp, 100.0f, 5000.0f, "%.2f"));
 					{
 						camera->setFarPlane(farPlaneTemp);
 					}
+
+					ImGui::NewLine();
 				}
 
-				if (ImGui::CollapsingHeader("Boxing", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::CollapsingHeader("Boxes"))
 				{
 					GLuint shininessValueTemp = directionalLight->getShininessValue();
-					if (ImGui::SliderInt("Shininess Value", (GLint*)&shininessValueTemp, 1, 256))
+					if (ImGui::SliderInt("Shininess Value##Boxes", (GLint*)&shininessValueTemp, 1, 256))
 					{
 						directionalLight->setShininessValue(shininessValueTemp);
 					}
+
+					ImGui::NewLine();
 				}
 
-				if (ImGui::CollapsingHeader("Rendering", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::CollapsingHeader("Rendering"))
 				{
-					if (ImGui::Checkbox("Wireframe", &isWireframeEnabled))
+					ImGui::Checkbox("Multiple Cubes##Rendering", &isRenderingMultipleCubes);
+
+					if (ImGui::Checkbox("Wireframe##Rendering", &isWireframeEnabled))
 					{
 						if (!isWireframeEnabled)
 						{
@@ -511,11 +536,11 @@ void GraphicsEngine::run()
 							LOG_ERRORS(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));
 						}
 					}
+
 					ImGui::Checkbox("VSync", &isVSyncActive);
-					ImGui::Checkbox("Multiple Cubes", &isRenderingMultipleCubes);
 				}
 
-				if (ImGui::CollapsingHeader("Other Information", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::CollapsingHeader("Other Information"))
 				{
 					ImGui::Text("Application's Average FPS: %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 				}
@@ -562,11 +587,6 @@ void GraphicsEngine::run()
 		delete(VBO2);
 		delete(EBO2);
 		delete(layout2);
-
-		delete(VAO3);
-		delete(VBO3);
-		delete(EBO3);
-		delete(layout3);
 
 		delete(camera); 
 }

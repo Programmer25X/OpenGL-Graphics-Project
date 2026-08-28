@@ -130,9 +130,9 @@ const GLfloat SpotLight::getLinear() const { return linear; }
 
 const GLfloat SpotLight::getQuadratic() const { return quadratic; }
 
-void SpotLight::setInnerCutOff(const GLfloat pInnerCutOff) { innerCutOff = pInnerCutOff; }
+void SpotLight::setInnerCutOff(const GLfloat pInnerCutOff) { innerCutOff = glm::cos(glm::radians(pInnerCutOff)); }
 
-void SpotLight::setOuterCutOff(const GLfloat pOuterCutOff) { outerCutOff = pOuterCutOff; }
+void SpotLight::setOuterCutOff(const GLfloat pOuterCutOff) { outerCutOff = glm::cos(glm::radians(pOuterCutOff)); }
 
 void SpotLight::setConstant(const GLfloat pConstant) { constant = pConstant; }
 
