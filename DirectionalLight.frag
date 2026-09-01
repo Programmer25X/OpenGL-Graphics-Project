@@ -61,9 +61,9 @@ uniform DirectionalLight u_directionalLight;
 uniform PointLight u_pointLight[NR_POINT_LIGHTS];
 uniform SpotLight u_spotLight; 
 
-uniform bool u_isDirectionalLightEnabled;
-uniform bool u_isPointlLightEnabled;
-uniform bool u_isSpotlLightEnabled;
+uniform bool u_isDirectionalLightEnabled = true;
+uniform bool u_isPointlLightEnabled = true;
+uniform bool u_isSpotlLightEnabled = true;
 
 
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDirection);
