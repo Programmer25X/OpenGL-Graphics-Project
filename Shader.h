@@ -37,6 +37,7 @@ public:
 	void setUniformMatrix4f(const std::string& uniformName, const glm::mat4& matrix);
 	void setUniformVector3(const std::string& uniformName, const GLfloat parameterOne, const GLfloat parameterTwo, const GLfloat perameterThree);
 	void setUniformVector4(const std::string& uniformName, const GLfloat parameterOne, const GLfloat parameterTwo, const GLfloat perameterThree, const GLfloat parameterFour);
+	void setUniformBoolean(const std::string& uniformName, const bool value);
 
 };
 

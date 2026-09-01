@@ -27,7 +27,6 @@ GLfloat lastXPosition = 800.0f / 2.0f;
 GLfloat lastYPosition = 600.0f / 2.0f;
 GLboolean firstMouseInput = GL_TRUE;
 
-
 BasicCube* cube = nullptr;
 
 DirectionalLight* directionalLight = nullptr;
@@ -57,6 +56,7 @@ Camera* camera = nullptr;
 
 static void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn);
 static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
+
 
 
 GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
@@ -96,20 +96,24 @@ GraphicsEngine::~GraphicsEngine()
 
 void GraphicsEngine::run()
 {
-	GLfloat aspectRatio = 0.0f; 
+	struct RenderingOptions
+	{
+		bool isSettingsWindowOpen = true;
+		bool isWireframeEnabled = false;
+		bool isVSyncActive = false;
+		bool isRenderingMultipleCubes = true;
+		bool isDirectionalLightEnabled = true;
+		bool isPointlightEnabled = true;
+		bool isSpotlightEnabled = true;
+	};
 
-	bool isSettingsWindowOpen = true;
-	bool isWireframeEnabled = false;
-	bool isVSyncActive = false;
-	bool isRenderingMultipleCubes = true;
-
-	ImVec4 directionalLightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-	ImVec4 pointLightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-	ImVec4 spotlightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-	ImVec4 clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-	GLint bufferWidth;
-	GLint bufferHeight;
+	struct Colours
+	{
+		ImVec4 directionalLightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+		ImVec4 pointLightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+		ImVec4 spotlightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+		ImVec4 clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	};
 
 	glm::vec3 cubePositions[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
@@ -128,7 +132,13 @@ void GraphicsEngine::run()
 		glm::vec3(2.3f, -3.3f, -4.0f),
 		glm::vec3(-4.0f,  2.0f, -12.0f),
 		glm::vec3(0.0f,  0.0f, -3.0f) };
- 
+
+	GLfloat aspectRatio = 0.0f;
+	GLint bufferWidth = 0.0f;
+	GLint bufferHeight = 0.0f;
+
+	RenderingOptions renderingOptions = {}; 
+	Colours colours = {}; 
 
 // ================================ Initalising GLAD and GLFW ========================================= //
 
@@ -219,36 +229,46 @@ void GraphicsEngine::run()
 				lightingShader->useShader();
 
 				// Directional Light
-				lightingShader->setUniformVector3("u_directionalLight.direction", directionalLight->getLightPosition().x, directionalLight->getLightPosition().y, directionalLight->getLightPosition().z);
-				lightingShader->setUniformVector3("u_viewPosition", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
-				lightingShader->setUniformVector3("u_directionalLight.ambient", directionalLight->getAmbientColour().r, directionalLight->getAmbientColour().g, directionalLight->getAmbientColour().b);
-				lightingShader->setUniformVector3("u_directionalLight.diffuse", directionalLight->getDiffuseColour().r, directionalLight->getDiffuseColour().g, directionalLight->getDiffuseColour().b);
-				lightingShader->setUniformVector3("u_directionalLight.specular", directionalLight->getSpecularColour().r, directionalLight->getSpecularColour().g, directionalLight->getSpecularColour().b);
-
-				// Point Lights
-				for (GLint i = 0; i < (sizeof(pointLightPositions) / sizeof(pointLightPositions[i])); i++)
+				if (renderingOptions.isDirectionalLightEnabled)
 				{
-					std::string pointLightUniform = std::string("u_pointLight[") + std::to_string(i) + std::string("].");
-					lightingShader->setUniformVector3(pointLightUniform + "position", pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
-					lightingShader->setUniformVector3(pointLightUniform + "ambient", pointLights[i]->getAmbientColour().r, pointLights[i]->getAmbientColour().g, pointLights[i]->getAmbientColour().b);
-					lightingShader->setUniformVector3(pointLightUniform + "diffuse", pointLights[i]->getDiffuseColour().r, pointLights[i]->getDiffuseColour().g, pointLights[i]->getDiffuseColour().b);
-					lightingShader->setUniformVector3(pointLightUniform + "specular", pointLights[i]->getSpecularColour().r, pointLights[i]->getSpecularColour().g, pointLights[i]->getSpecularColour().b);
-					lightingShader->setUniform1f(pointLightUniform + "constant", pointLights[i]->getConstant());
-					lightingShader->setUniform1f(pointLightUniform + "linear", pointLights[i]->getLinear());
-					lightingShader->setUniform1f(pointLightUniform + "quadratic", pointLights[i]->getQuadratic());
+					lightingShader->setUniformVector3("u_directionalLight.direction", directionalLight->getLightPosition().x, directionalLight->getLightPosition().y, directionalLight->getLightPosition().z);
+					lightingShader->setUniformVector3("u_viewPosition", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+					lightingShader->setUniformVector3("u_directionalLight.ambient", directionalLight->getAmbientColour().r, directionalLight->getAmbientColour().g, directionalLight->getAmbientColour().b);
+					lightingShader->setUniformVector3("u_directionalLight.diffuse", directionalLight->getDiffuseColour().r, directionalLight->getDiffuseColour().g, directionalLight->getDiffuseColour().b);
+					lightingShader->setUniformVector3("u_directionalLight.specular", directionalLight->getSpecularColour().r, directionalLight->getSpecularColour().g, directionalLight->getSpecularColour().b);
+				}
+				
+				
+				// Point Lights
+				if (renderingOptions.isPointlightEnabled)
+				{
+					for (GLint i = 0; i < (sizeof(pointLightPositions) / sizeof(pointLightPositions[i])); i++)
+					{
+						std::string pointLightUniform = std::string("u_pointLight[") + std::to_string(i) + std::string("].");
+						lightingShader->setUniformVector3(pointLightUniform + "position", pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
+						lightingShader->setUniformVector3(pointLightUniform + "ambient", pointLights[i]->getAmbientColour().r, pointLights[i]->getAmbientColour().g, pointLights[i]->getAmbientColour().b);
+						lightingShader->setUniformVector3(pointLightUniform + "diffuse", pointLights[i]->getDiffuseColour().r, pointLights[i]->getDiffuseColour().g, pointLights[i]->getDiffuseColour().b);
+						lightingShader->setUniformVector3(pointLightUniform + "specular", pointLights[i]->getSpecularColour().r, pointLights[i]->getSpecularColour().g, pointLights[i]->getSpecularColour().b);
+						lightingShader->setUniform1f(pointLightUniform + "constant", pointLights[i]->getConstant());
+						lightingShader->setUniform1f(pointLightUniform + "linear", pointLights[i]->getLinear());
+						lightingShader->setUniform1f(pointLightUniform + "quadratic", pointLights[i]->getQuadratic());
+					}
 				}
 
 				// Spotlight 
-				lightingShader->setUniformVector3("u_spotLight.position", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
-				lightingShader->setUniformVector3("u_spotLight.direction", camera->getFront().x, camera->getFront().y, camera->getFront().z);
-				lightingShader->setUniform1f("u_spotLight.innerCutOff", spotlight->getInnerCutOff());
-				lightingShader->setUniform1f("u_spotLight.outerCutOff", spotlight->getOuterCutOff());
-				lightingShader->setUniformVector3("u_spotLight.ambient", spotlight->getAmbientColour().r, spotlight->getAmbientColour().g, spotlight->getAmbientColour().b);
-				lightingShader->setUniformVector3("u_spotLight.diffuse", spotlight->getDiffuseColour().r, spotlight->getDiffuseColour().g, spotlight->getDiffuseColour().b);
-				lightingShader->setUniformVector3("u_spotLight.specular", spotlight->getSpecularColour().r, spotlight->getSpecularColour().g, spotlight->getSpecularColour().b);
-				lightingShader->setUniform1f("u_spotLight.constant", spotlight->getConstant());
-				lightingShader->setUniform1f("u_spotLight.linear", spotlight->getLinear());
-				lightingShader->setUniform1f("u_spotLight.quadratic", spotlight->getQuadratic());
+				if (renderingOptions.isSpotlightEnabled)
+				{
+					lightingShader->setUniformVector3("u_spotLight.position", camera->getPosition().x, camera->getPosition().y, camera->getPosition().z);
+					lightingShader->setUniformVector3("u_spotLight.direction", camera->getFront().x, camera->getFront().y, camera->getFront().z);
+					lightingShader->setUniform1f("u_spotLight.innerCutOff", spotlight->getInnerCutOff());
+					lightingShader->setUniform1f("u_spotLight.outerCutOff", spotlight->getOuterCutOff());
+					lightingShader->setUniformVector3("u_spotLight.ambient", spotlight->getAmbientColour().r, spotlight->getAmbientColour().g, spotlight->getAmbientColour().b);
+					lightingShader->setUniformVector3("u_spotLight.diffuse", spotlight->getDiffuseColour().r, spotlight->getDiffuseColour().g, spotlight->getDiffuseColour().b);
+					lightingShader->setUniformVector3("u_spotLight.specular", spotlight->getSpecularColour().r, spotlight->getSpecularColour().g, spotlight->getSpecularColour().b);
+					lightingShader->setUniform1f("u_spotLight.constant", spotlight->getConstant());
+					lightingShader->setUniform1f("u_spotLight.linear", spotlight->getLinear());
+					lightingShader->setUniform1f("u_spotLight.quadratic", spotlight->getQuadratic());
+				}
 
 				// Boxes
 				lightingShader->setUniform1f("u_material.shininess", static_cast<GLfloat>(directionalLight->getShininessValue()));
@@ -259,7 +279,7 @@ void GraphicsEngine::run()
 
 				// =========================== Drawing the Boxes ===================================================== //
 
-				if (isRenderingMultipleCubes)
+				if (renderingOptions.isRenderingMultipleCubes)
 				{
 					for (GLuint i = 0; i < (sizeof(cubePositions)/sizeof(cubePositions[0])); i++)
 					{
@@ -282,24 +302,28 @@ void GraphicsEngine::run()
 				}
 
 				// =========================== Drawing the Light Sources ===================================================== //
-
-				lightSourceShader->useShader();
-				lightSourceShader->setUniformMatrix4f("u_projection", projectionMatrix);
-				lightSourceShader->setUniformMatrix4f("u_view", viewMatrix);
-
-				for (GLuint i = 0; i < (sizeof(pointLights) / sizeof(pointLights[0])); i++)
+				
+				if (renderingOptions.isPointlightEnabled)
 				{
-					modelMatrix = glm::mat4(1.0f);
-					modelMatrix = glm::translate(modelMatrix, pointLightPositions[i] * 250.0f);
-					modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f)); // a smaller cube
-					lightSourceShader->setUniformMatrix4f("u_model", modelMatrix);
-					lightSourceShader->setUniformVector3("u_lightSourceColour", pointLights[i]->getLightColor().r, pointLights[i]->getLightColor().g, pointLights[i]->getLightColor().b);
-					renderer->draw(*VAO2, *EBO2, *lightSourceShader); 
+					lightSourceShader->useShader();
+					lightSourceShader->setUniformMatrix4f("u_projection", projectionMatrix);
+					lightSourceShader->setUniformMatrix4f("u_view", viewMatrix);
+
+					for (GLuint i = 0; i < (sizeof(pointLights) / sizeof(pointLights[0])); i++)
+					{
+						modelMatrix = glm::mat4(1.0f);
+						modelMatrix = glm::translate(modelMatrix, pointLightPositions[i] * 250.0f);
+						modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f)); // a smaller cube
+						lightSourceShader->setUniformMatrix4f("u_model", modelMatrix);
+						lightSourceShader->setUniformVector3("u_lightSourceColour", pointLights[i]->getLightColor().r, pointLights[i]->getLightColor().g, pointLights[i]->getLightColor().b);
+						renderer->draw(*VAO2, *EBO2, *lightSourceShader);
+					}
 				}
+
 
 				// =========================== Real-Time Updates and ImGUI ===================================================== //
 
-				ImGui::Begin("Settings", &isSettingsWindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
+				ImGui::Begin("Settings", &renderingOptions.isSettingsWindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
 				lightingShader->useShader();
 
@@ -311,17 +335,17 @@ void GraphicsEngine::run()
 
 					ImGui::SeparatorText("Colour");
 
-					if (ImGui::ColorEdit3("Light Colour##DirectionalLight", (float*)&directionalLightColour), ImGuiColorEditFlags_DisplayRGB)
+					if (ImGui::ColorEdit3("Light Colour##DirectionalLight", (float*)&colours.directionalLightColour), ImGuiColorEditFlags_DisplayRGB)
 					{
-						directionalLight->setLightColour(glm::vec3(directionalLightColour.x, directionalLightColour.y, directionalLightColour.z));
+						directionalLight->setLightColour(glm::vec3(colours.directionalLightColour.x, colours.directionalLightColour.y, colours.directionalLightColour.z));
 						directionalLight->setAmbientColour();
 						directionalLight->setDiffuseColour();
 						directionalLight->setSpecularColour();
 					}
 
-					if (ImGui::ColorEdit3("Background Colour", (float*)&clearColour, ImGuiColorEditFlags_DisplayRGB));
+					if (ImGui::ColorEdit3("Background Colour", (float*)&colours.clearColour, ImGuiColorEditFlags_DisplayRGB));
 					{
-						LOG_ERRORS(glClearColor(clearColour.x, clearColour.y, clearColour.z, clearColour.w));
+						LOG_ERRORS(glClearColor(colours.clearColour.x, colours.clearColour.y, colours.clearColour.z, colours.clearColour.w));
 					}
 
 					ImGui::SeparatorText("Phong Lighting");
@@ -344,6 +368,13 @@ void GraphicsEngine::run()
 						directionalLight->setSpecularColour();
 					}
 
+					ImGui::SeparatorText("Other");
+
+					if (ImGui::Checkbox("Enabled##DirectionalLight", &renderingOptions.isDirectionalLightEnabled))
+					{
+						lightingShader->setUniformBoolean("u_isDirectionalLightEnabled", renderingOptions.isDirectionalLightEnabled);
+					}
+
 					ImGui::NewLine();
 				}
 
@@ -357,15 +388,15 @@ void GraphicsEngine::run()
 					GLfloat attenuationLinearTemp = pointLights[0]->getLinear();
 					GLfloat attenuationQuadraticTemp = pointLights[0]->getQuadratic();
 
-					pointLightColour = ImVec4(pointLights[0]->getLightColor().r, pointLights[0]->getLightColor().g, pointLights[0]->getLightColor().b, 0.0f);
+					colours.pointLightColour = ImVec4(pointLights[0]->getLightColor().r, pointLights[0]->getLightColor().g, pointLights[0]->getLightColor().b, 0.0f);
 
 					ImGui::SeparatorText("Colour");
 
-					if (ImGui::ColorEdit3("Light Colour##PointLight", (float*)&pointLightColour, ImGuiColorEditFlags_DisplayRGB))
+					if (ImGui::ColorEdit3("Light Colour##PointLight", (float*)&colours.pointLightColour, ImGuiColorEditFlags_DisplayRGB))
 					{
 						for (PointLight* pointLight : pointLights)
 						{
-							pointLight->setLightColour(glm::vec3(pointLightColour.x, pointLightColour.y, pointLightColour.z));
+							pointLight->setLightColour(glm::vec3(colours.pointLightColour.x, colours.pointLightColour.y, colours.pointLightColour.z));
 							pointLight->setDiffuseColour();
 							pointLight->setAmbientColour();
 							pointLight->setSpecularColour();
@@ -427,6 +458,13 @@ void GraphicsEngine::run()
 						}
 					}
 
+					ImGui::SeparatorText("Other");
+
+					if (ImGui::Checkbox("Enabled##PointLight", &renderingOptions.isPointlightEnabled))
+					{
+						lightingShader->setUniformBoolean("u_isPointlLightEnabled", renderingOptions.isPointlightEnabled);
+					}
+
 					ImGui::NewLine();
 				}
 
@@ -445,9 +483,9 @@ void GraphicsEngine::run()
 
 					ImGui::SeparatorText("Colour");
 
-					if (ImGui::ColorEdit3("Light Colour##Spotlight", (float*)&spotlightColour, ImGuiColorEditFlags_DisplayRGB))
+					if (ImGui::ColorEdit3("Light Colour##Spotlight", (float*)&colours.spotlightColour, ImGuiColorEditFlags_DisplayRGB))
 					{
-						spotlight->setLightColour(glm::vec3(spotlightColour.x, spotlightColour.y, spotlightColour.z));
+						spotlight->setLightColour(glm::vec3(colours.spotlightColour.x, colours.spotlightColour.y, colours.spotlightColour.z));
 						spotlight->setDiffuseColour();
 						spotlight->setAmbientColour();
 						spotlight->setSpecularColour();
@@ -502,6 +540,13 @@ void GraphicsEngine::run()
 						spotlight->setOuterCutOff(outerCutOffTemp);
 					}
 
+					ImGui::SeparatorText("Other");
+
+					if (ImGui::Checkbox("Enabled##Spotlight", &renderingOptions.isSpotlightEnabled))
+					{
+						lightingShader->setUniformBoolean("u_isSpotlLightEnabled", renderingOptions.isSpotlightEnabled);
+					}
+
 					ImGui::NewLine();
 				}
 
@@ -541,11 +586,11 @@ void GraphicsEngine::run()
 
 				if (ImGui::CollapsingHeader("Rendering"))
 				{
-					ImGui::Checkbox("Multiple Cubes##Rendering", &isRenderingMultipleCubes);
+					ImGui::Checkbox("Multiple Cubes##Rendering", &renderingOptions.isRenderingMultipleCubes);
 
-					if (ImGui::Checkbox("Wireframe##Rendering", &isWireframeEnabled))
+					if (ImGui::Checkbox("Wireframe##Rendering", &renderingOptions.isWireframeEnabled))
 					{
-						if (!isWireframeEnabled)
+						if (!renderingOptions.isWireframeEnabled)
 						{
 							LOG_ERRORS(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
 						}
@@ -555,7 +600,7 @@ void GraphicsEngine::run()
 						}
 					}
 
-					ImGui::Checkbox("VSync", &isVSyncActive);
+					ImGui::Checkbox("VSync", &renderingOptions.isVSyncActive);
 				}
 
 				if (ImGui::CollapsingHeader("Other Information"))

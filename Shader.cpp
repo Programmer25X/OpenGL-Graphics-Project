@@ -155,6 +155,22 @@ void Shader::setUniformVector4(const std::string& uniformName, const GLfloat par
 	LOG_ERRORS(glUniform4f(getUniformLocation(uniformName), parameterOne, parameterTwo, parameterThree, parameterFour));
 }
 
+void Shader::setUniformBoolean(const std::string& uniformName, const bool value)
+{
+	GLuint passedValue = 0;
+
+	if (value == GL_TRUE || value == true)
+	{
+		passedValue = 1; // True
+	}
+	else
+	{
+		passedValue = 0;
+	}
+
+	LOG_ERRORS(glUniform1i(getUniformLocation(uniformName), passedValue));
+}
+
 const GLint Shader::getUniformLocation(const std::string& uniformName)
 {
 	// Caching the Uniform

@@ -61,6 +61,11 @@ uniform DirectionalLight u_directionalLight;
 uniform PointLight u_pointLight[NR_POINT_LIGHTS];
 uniform SpotLight u_spotLight; 
 
+uniform bool u_isDirectionalLightEnabled;
+uniform bool u_isPointlLightEnabled;
+uniform bool u_isSpotlLightEnabled;
+
+
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDirection);
 vec3 calculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDirection);
 vec3 calculateSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDirection);
@@ -70,14 +75,25 @@ void main()
     vec3 norm = normalize(v_normal);
     vec3 viewDir = normalize(u_viewPosition - FragPos);
 
-    vec3 result = calculateDirectionalLight(u_directionalLight, norm, viewDir);
+    vec3 result;
 
-    for(int i = 0; i < NR_POINT_LIGHTS; i++)
+    if(u_isDirectionalLightEnabled)
     {
-       result += calculatePointLight(u_pointLight[i], norm, FragPos, viewDir); 
+       result += calculateDirectionalLight(u_directionalLight, norm, viewDir);
+    }
+    
+    if(u_isPointlLightEnabled)
+    {
+        for(int i = 0; i < NR_POINT_LIGHTS; i++)
+        {
+            result += calculatePointLight(u_pointLight[i], norm, FragPos, viewDir); 
+        }
     }
 
-    result += calculateSpotLight(u_spotLight, norm, FragPos, viewDir); 
+    if(u_isSpotlLightEnabled)
+    {
+       result += calculateSpotLight(u_spotLight, norm, FragPos, viewDir); 
+    }
 
     FragColor = vec4(result, 1.0); 
 }
