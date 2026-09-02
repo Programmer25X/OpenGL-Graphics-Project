@@ -190,18 +190,25 @@
     <ClInclude Include="Libraries\include\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="DirectionalLight.vert" />
-    <Text Include="DirectionalLight.frag" />
+    <Image Include="Textures\Images\awesomeface.png" />
+    <Image Include="Textures\Images\container2.png" />
+    <Image Include="Textures\Images\container2_specular.png" />
+    <Image Include="Textures\Images\Logo.png" />
+    <Image Include="Textures\Images\matrix.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="container2.png" />
-    <Image Include="container2_specular.png" />
-    <Image Include="matrix.jpg" />
-    <Image Include="Textures\Logo.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="lightCube.frag" />
-    <None Include="lightCube.vert" />
+    <None Include="Shaders\Light.frag">
+      <FileType>Text</FileType>
+    </None>
+    <None Include="Shaders\Light.vert">
+      <FileType>Text</FileType>
+    </None>
+    <None Include="Shaders\LightSource.frag">
+      <FileType>Text</FileType>
+    </None>
+    <None Include="Shaders\LightSource.vert">
+      <FileType>Text</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -659,7 +659,7 @@ void GraphicsEngine::createEntities()
 {
 	// ==================== Creating Objects ================================ //
 
-	cube = new BasicCube;
+	cube = new BasicCube();
 
 	directionalLight = new DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f));
 	spotlight = new SpotLight(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -669,25 +669,25 @@ void GraphicsEngine::createEntities()
 		pointLights[i] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
 	}
 
-	renderer = new Renderer;
+	renderer = new Renderer();
 
 	VAO1 = new VertexArrayObject();
 	VBO1 = new VertexBufferObject(cube->getVerticies().data(), cube->getVerticies().size());
 	layout1 = new VertexBufferLayout();
 	EBO1 = new ElementBufferObject(cube->getIndices().data(), cube->getIndices().size());
 
-	VAO2 = new VertexArrayObject;
+	VAO2 = new VertexArrayObject();
 	VBO2 = new VertexBufferObject(pointLights[0]->getVerticies().data(), pointLights[0]->getVerticies().size());
 	layout2 = new VertexBufferLayout;
 	EBO2 = new ElementBufferObject(pointLights[0]->getIndices().data(), pointLights[0]->getVerticies().size());
 
-	lightingShader = new Shader("DirectionalLight.vert", "DirectionalLight.frag");
-	lightSourceShader = new Shader("lightCube.vert", "lightCube.frag");
+	lightingShader = new Shader("Shaders\\Light.vert", "Shaders\\Light.frag");
+	lightSourceShader = new Shader("Shaders\\LightSource.vert", "Shaders\\LightSource.frag");
 
-	texture1 = new Texture("container2.png");
-	texture2 = new Texture("container2_specular.png");
+	texture1 = new Texture("Textures\\Images\\container2.png");
+	texture2 = new Texture("Textures\\Images\\container2_specular.png");
 
-	camera = new Camera;
+	camera = new Camera();
 
 
 	// ==================== Setting the Lights' Initial Values ================================ //
