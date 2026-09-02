@@ -72,6 +72,7 @@ vec3 calculateSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir
 
 void main()
 {
+    const float GAMMA = 2.2; 
     vec3 norm = normalize(v_normal);
     vec3 viewDir = normalize(u_viewPosition - FragPos);
 
@@ -110,9 +111,14 @@ vec3 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir
    vec3 diffuse = light.diffuse * diff * vec3(texture(u_material.diffuse, v_TexCoord));
 
    // Specular Lighting 
-   vec3 reflectionDirection = reflect(-lightDirection, normal);
-   float spec = pow(max(dot(viewDirection, reflectionDirection), 0.0), u_material.shininess);
+   vec3 halfwayDirection = normalize(lightDirection + viewDirection);
+   float spec = pow(max(dot(normal, halfwayDirection), 0.0), u_material.shininess);
    vec3 specular = light.specular * spec * vec3(texture(u_material.specular, v_TexCoord));
+
+    if(diff == 0.0)
+    {
+        spec = 0.0; 
+    }
  
    return (ambient + diffuse + specular);
  }
@@ -130,9 +136,14 @@ vec3 calculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewD
     vec3 diffuse = light.diffuse * diff * vec3(texture(u_material.diffuse, v_TexCoord));
 
     // Specular Lighting 
-    vec3 reflectionDirection = reflect(-lightDirection, normal);
-    float spec = pow(max(dot(viewDirection, reflectionDirection), 0.0), u_material.shininess);
+    vec3 halfwayDirection = normalize(lightDirection + viewDirection);
+    float spec = pow(max(dot(normal, halfwayDirection), 0.0), u_material.shininess);
     vec3 specular = light.specular * spec * vec3(texture(u_material.specular, v_TexCoord));
+
+    if(diff == 0.0)
+    {
+        spec = 0.0; 
+    }
 
     // Attenuation 
     float distance = length(light.position - fragPos);
@@ -157,9 +168,14 @@ vec3 calculateSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir
     vec3 diffuse = light.diffuse * diff * vec3(texture(u_material.diffuse, v_TexCoord));
 
     // Specular Lighting 
-    vec3 reflectionDirection = reflect(-lightDirection, normal);
-    float spec = pow(max(dot(viewDirection, reflectionDirection), 0.0), u_material.shininess);
+    vec3 halfwayDirection = normalize(lightDirection + viewDirection);
+    float spec = pow(max(dot(normal, halfwayDirection), 0.0), u_material.shininess);
     vec3 specular = light.specular * spec * vec3(texture(u_material.specular, v_TexCoord));
+
+    if(diff == 0.0)
+    {
+        spec = 0.0; 
+    }
 
     float theta = dot(lightDirection, normalize(-light.direction));
     float epsilon = light.innerCutOff - light.outerCutOff;
