@@ -22,7 +22,7 @@ private:
 	GLuint id = 0; 
 	std::string vertexInfomation = "";
 	std::string fragmentInfomation = "";
-	std::unordered_map<std::string, int> uniformLocationCache; 
+	std::unordered_map<std::string, int> uniformLocationCache = {};
 
 
 public:
