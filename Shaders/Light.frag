@@ -100,7 +100,7 @@ void main()
 }
 
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDirection)
-{
+{ 
    vec3 lightDirection = normalize(light.direction); 
 
    // Ambient Lighting 

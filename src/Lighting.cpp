@@ -10,7 +10,7 @@ Lighting::Lighting(const glm::vec3& pLightColor, const GLfloat pAmbientStrength,
 	shininessValue = pShininessValue;
 }
 
-const glm::vec3 Lighting::getLightColor() const { return lightColour; }
+const glm::vec3 Lighting::getLightColour() const { return lightColour; }
 
 const std::vector<GLuint> Lighting::getIndices() const { return indices; }
 

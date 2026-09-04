@@ -70,7 +70,15 @@ struct ColourSettings
 	ImVec4 directionalLightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 	ImVec4 pointLightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 	ImVec4 spotlightColour = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
-	ImVec4 clearColour = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	ImVec4 clearColour = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
+};
+
+struct CameraSettings
+{
+	GLfloat farPlane = 0.0f;
+	GLfloat nearPlane = 0.0f;
+	GLfloat fieldOfView = 0.0f;
+	GLfloat speed = 0.0f; 
 };
 
 GLfloat lastXPosition = 800.0f / 2.0f;
@@ -108,6 +116,7 @@ DirectionalLightSettings directionalLightSettings = {};
 SpotlightSettings spotlightSettings = {};
 PointLightSettings pointLightSettings = {}; 
 ColourSettings colourSettings = {};
+CameraSettings cameraSettings = {}; 
 
 static void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn);
 static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
@@ -334,7 +343,7 @@ void GraphicsEngine::run()
 						modelMatrix = glm::translate(modelMatrix, pointLightPositions[i] * 250.0f);
 						modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f));
 						lightSourceShader->setUniformMatrix4f("u_model", modelMatrix);
-						lightSourceShader->setUniformVector3("u_lightSourceColour", pointLights[i]->getLightColor().r, pointLights[i]->getLightColor().g, pointLights[i]->getLightColor().b);
+						lightSourceShader->setUniformVector3("u_lightSourceColour", pointLights[i]->getLightColour().r, pointLights[i]->getLightColour().g, pointLights[i]->getLightColour().b);
 						renderer->draw(*VAO2, *EBO2, *lightSourceShader);
 					}
 				}
@@ -346,7 +355,7 @@ void GraphicsEngine::run()
 
 				lightingShader->useShader();
 
-				if (ImGui::CollapsingHeader("Directional Lighting & Background", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::CollapsingHeader("Directional Lighting & Background"))
 				{
 					directionalLightSettings.ambientIntensity = directionalLight->getAmbientIntensity();
 					directionalLightSettings.diffuseIntensity = directionalLight->getDiffuseIntensity();
@@ -397,7 +406,7 @@ void GraphicsEngine::run()
 					ImGui::NewLine();
 				}
 
-				if (ImGui::CollapsingHeader("Point Lighting", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::CollapsingHeader("Point Lighting"))
 				{
 					pointLightSettings.ambientIntensity= pointLights[0]->getAmbientIntensity();
 					pointLightSettings.diffuseIntensity = pointLights[0]->getDiffuseIntensity();
@@ -406,7 +415,7 @@ void GraphicsEngine::run()
 					pointLightSettings.attenuationLinear = pointLights[0]->getLinear();
 					pointLightSettings.attenuationQuadratic = pointLights[0]->getQuadratic();
 
-					colourSettings.pointLightColour = ImVec4(pointLights[0]->getLightColor().r, pointLights[0]->getLightColor().g, pointLights[0]->getLightColor().b, 0.0f);
+					colourSettings.pointLightColour = ImVec4(pointLights[0]->getLightColour().r, pointLights[0]->getLightColour().g, pointLights[0]->getLightColour().b, 0.0f);
 
 					ImGui::SeparatorText("Colour");
 
@@ -486,7 +495,7 @@ void GraphicsEngine::run()
 					ImGui::NewLine();
 				}
 
-				if (ImGui::CollapsingHeader("Spotlight", ImGuiTreeNodeFlags_DefaultOpen))
+				if (ImGui::CollapsingHeader("Spotlight"))
 				{
 					spotlightSettings.ambientIntensity = spotlight->getAmbientIntensity();
 					spotlightSettings.diffuseIntensity = spotlight->getDiffuseIntensity();
@@ -568,22 +577,24 @@ void GraphicsEngine::run()
 
 				if (ImGui::CollapsingHeader("Camera"))
 				{
-					GLfloat fovTemp = camera->getFOV();
-					if (ImGui::SliderFloat("Field of View (FOV)##Camera", &fovTemp, 1.0f, 45.0f, "%.2f"));
+					if (ImGui::SliderFloat("Field of View (FOV)##Camera", &cameraSettings.fieldOfView, 1.0f, 45.0f, "%.2f"));
 					{
-						camera->setFOV(fovTemp);
+						camera->setFOV(cameraSettings.fieldOfView);
 					}
 
-					GLfloat nearPlaneTemp = camera->getNearPlane();
-					if (ImGui::SliderFloat("Near Plane##Camera", &nearPlaneTemp, 0.01f, 100.0f, "%.2f"));
+					if (ImGui::SliderFloat("Camera Speed##Camera", &cameraSettings.speed, 60.0f, 600.0f, "%.2f"));
 					{
-						camera->setNearPlane(nearPlaneTemp);
+						camera->setCameraSpeed(cameraSettings.speed);
 					}
 
-					GLfloat farPlaneTemp = camera->getFarPlane();
-					if (ImGui::SliderFloat("Far Plane##Camera", &farPlaneTemp, 100.0f, 5000.0f, "%.2f"));
+					if (ImGui::SliderFloat("Near Plane##Camera", &cameraSettings.nearPlane, 0.01f, 100.0f, "%.2f"));
 					{
-						camera->setFarPlane(farPlaneTemp);
+						camera->setNearPlane(cameraSettings.nearPlane);
+					}
+
+					if (ImGui::SliderFloat("Far Plane##Camera", &cameraSettings.farPlane, 100.0f, 5000.0f, "%.2f"));
+					{
+						camera->setFarPlane(cameraSettings.farPlane);
 					}
 
 					ImGui::NewLine();
@@ -630,7 +641,7 @@ void GraphicsEngine::run()
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-			camera->processCameraInputs(0.05f, engineWindow->getWindow());
+			camera->processCameraInputs(engineWindow->getWindow());
 			LOG_ERRORS(engineWindow->processInput(engineWindow->getWindow()));
 			LOG_ERRORS(glfwSwapBuffers(engineWindow->getWindow())); // Swap front buffer and back buffer
 
@@ -677,8 +688,8 @@ void GraphicsEngine::createEntities()
 	EBO1 = new ElementBufferObject(cube->getIndices().data(), cube->getIndices().size());
 
 	VAO2 = new VertexArrayObject();
-	VBO2 = new VertexBufferObject(pointLights[0]->getVerticies().data(), pointLights[0]->getVerticies().size());
-	layout2 = new VertexBufferLayout;
+	VBO2 = new VertexBufferObject(pointLights[0]->  getVerticies().data(), pointLights[0]->getVerticies().size());
+	layout2 = new VertexBufferLayout();
 	EBO2 = new ElementBufferObject(pointLights[0]->getIndices().data(), pointLights[0]->getVerticies().size());
 
 	lightingShader = new Shader("Shaders\\Light.vert", "Shaders\\Light.frag");
@@ -723,16 +734,28 @@ void GraphicsEngine::createEntities()
 		pointLight->setDiffuseColour();
 		pointLight->setAmbientColour();
 		pointLight->setSpecularColour();
-	}
+	} 
+
+	// ==================== Setting the Initial Colour Values ================================ //
+
+	colourSettings.clearColour = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+	colourSettings.directionalLightColour = ImVec4(directionalLight->getLightColour().r, directionalLight->getLightColour().g, directionalLight->getLightColour().b, 1.0f);
+	colourSettings.pointLightColour = ImVec4(pointLights[0]->getLightColour().r, pointLights[0]->getLightColour().g, pointLights[0]->getLightColour().b, 1.0f);
+	colourSettings.spotlightColour = ImVec4(spotlight->getLightColour().r, spotlight->getLightColour().g, spotlight->getLightColour().b, 1.0f);
+
+	// ==================== Setting the Camera's' Initial Values ================================ //
+
+	cameraSettings.fieldOfView = camera->getFOV();
+	cameraSettings.speed = camera->getCameraSpeed();
+	cameraSettings.nearPlane = camera->getNearPlane();
+	cameraSettings.farPlane = camera->getFarPlane();
 
 	// ==================== Adding elements to layouts ================================ //
-
 
 	layout1->pushElement<float>(3);
 	layout1->pushElement<float>(3);
 	layout1->pushElement<float>(2);
 	layout2->pushElement<float>(3);
-
 
 	// ==================== Adding Buffers ============================================== //
 

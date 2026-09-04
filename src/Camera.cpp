@@ -4,19 +4,21 @@
 #include <cmath>
 #include <algorithm>
 
+GLfloat deltaTime = 0.0f;
+GLfloat previousFrame = 0.0f;
+
 Camera::Camera()
 {
 	// View Space 
-	
 	glm::vec3 frontDirection(0.0f, 0.0f, 0.0f);
 	frontDirection.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 	frontDirection.y = sin(glm::radians(pitch));
 	frontDirection.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 	cameraFront = glm::normalize(frontDirection);
-
 	cameraRight = glm::normalize(glm::cross(cameraFront, worldUp));
 	cameraUp = glm::normalize(glm::cross(cameraRight, cameraFront));
 }
+
 
 // Gets the view matrix for the MVP matrix
 const glm::mat4 Camera::getViewMatrix() const { return glm::lookAt(cameraPosition, cameraPosition + cameraFront, cameraUp); }
@@ -35,20 +37,23 @@ const GLfloat Camera::getNearPlane() const { return nearPlane; }
 
 const GLfloat Camera::getFarPlane() const { return farPlane; }
 
-void Camera::setFOV(GLfloat pFOV) { fieldOfView = pFOV; }
-
-void Camera::setNearPlane(GLfloat pNearPlane) { nearPlane = pNearPlane; }
-
-void Camera::setFarPlane(GLfloat pFarPlane) { farPlane = pFarPlane; }
+const GLfloat Camera::getCameraSpeed() const { return cameraSpeed; }
 
 
-void Camera::processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window)
+
+void Camera::setFOV(const GLfloat pFOV) { fieldOfView = pFOV; }
+
+void Camera::setNearPlane(const GLfloat pNearPlane) { nearPlane = pNearPlane; }
+
+void Camera::setFarPlane(const GLfloat pFarPlane) { farPlane = pFarPlane; }
+
+void Camera::setCameraSpeed(const GLfloat pCameraSpeed) { cameraSpeed = pCameraSpeed; }
+
+
+void Camera::processCameraInputs(GLFWwindow* window)
 {
 	enum class MoveDirection {NONE ,UP, DOWN, LEFT, RIGHT};
 	MoveDirection userInput = MoveDirection::NONE;
-
-	GLfloat deltaTime = 0.0f;
-	GLfloat previousFrame = 0.0f;
 	GLfloat currentFrame = static_cast<GLfloat>(glfwGetTime());
 	
 	deltaTime = currentFrame - previousFrame;

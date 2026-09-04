@@ -22,13 +22,15 @@ private:
 	glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f); 
 	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 
+	const GLfloat MOUSE_SENSITIVITY = 0.1f;
+
 	GLfloat yaw = -90.0f;
 	GLfloat pitch = 0.0f;
-	const GLfloat MOUSE_SENSITIVITY = 0.1f;
 
 	GLfloat fieldOfView = 45.0f;
 	GLfloat nearPlane = 0.01f;
 	GLfloat farPlane = 5000.0f;
+	GLfloat cameraSpeed = 60.0f; 
 
 	glm::mat4 viewMatrix = glm::mat4(0.0f);
 	glm::mat4 projectionMatrix = glm::mat4(0.0f); 
@@ -41,17 +43,17 @@ public:
 	const GLfloat getFOV() const;
 	const GLfloat getNearPlane() const;
 	const GLfloat getFarPlane() const;
+	const GLfloat getCameraSpeed() const; 
 
-	void setFOV(GLfloat pFOV);
-	void setNearPlane(GLfloat pNearPlane);
-	void setFarPlane(GLfloat pFarPlane);
+	void setFOV(const GLfloat pFOV);
+	void setNearPlane(const GLfloat pNearPlane);
+	void setFarPlane(const GLfloat pFarPlane);
+	void setCameraSpeed(const GLfloat pCameraSpeed); 
 
-
-	void processCameraInputs(const GLfloat cameraSpeed, GLFWwindow* window);
+	void processCameraInputs(GLFWwindow* window);
 	void processMouseMovements(GLfloat xOffset, GLfloat yOffset, GLboolean constrainPitch = GL_TRUE);
 	void processMouseScroll(GLfloat yOffset); 
 };
-
 
 
 #endif

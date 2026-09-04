@@ -107,7 +107,7 @@ protected:
 	};
 
 public:
-	const glm::vec3 getLightColor() const;
+	const glm::vec3 getLightColour() const;
 
 	const std::vector<GLuint> getIndices() const;
 	const std::vector<GLfloat> getVerticies() const;
