@@ -22,10 +22,10 @@
 
 ## Technical Details
 - **Data Structures & Control Structures**: Implemented data structures, including arrays, maps and structs, and control structures to manage the user's inputs
-- **Object-Oriented Programming (OOP)**: By using classes, inheritance, encapsulation and reusable components, I produced more efficient and robust code, some of which could be reused effectively
+- **Object-Oriented Programming (OOP)**: By using classes, inheritance, encapsulation and reusable components, I created efficient and robust code, allowing VAO, VBO, EBO, Renderer, Camera, Textures and Light objects to be instantiated 
 - **Event-Driven Programming (EDP)**: Used control structures to implement event listeners, allowing the state of the scene to change as users interact with the user interface
 - **OpenGL**: Utilised the OpenGL API and created shaders in GLSL to simulate lighting within a three-dimensional scene
-- **ImGui**: To enable users to change the lighting within the scene, a user interface was implemented by using the ImGui library  
+- **Dear ImGui**: To enable users to change the lighting within the scene, a user interface was implemented by using the Dear ImGui library  
 - **Memory Management**: Utilised pointers to dynamically allocate and deallocate memory during runtime
 
 ----
@@ -66,5 +66,6 @@ Disclaimer: This project was developed for **portfolio** purposes only. To my kn
 
 ### Libraries
 - [**GLFW**](https://www.glfw.org/)
+- [**Dear ImGui**](https://github.com/ocornut/imgui)
 
 
