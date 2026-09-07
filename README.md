@@ -61,10 +61,10 @@
 Disclaimer: This project was developed for **portfolio** purposes only. To my knowledge, any source code, libraries and third-party assets used and their creators have been listed, with appropriate credit being given to the creators for their work. If there are any issues regarding the credits, please contact me.
 
 ### Source Code 
-- ![Learn OpenGL](https://learnopengl.com/)
-- ![The Cherno](https://www.youtube.com/watch?v=W3gAzLwfIP0&list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2) 
+- [**Learn OpenGL**](https://learnopengl.com/)
+- [**The Cherno**](https://www.youtube.com/watch?v=W3gAzLwfIP0&list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2) 
 
 ### Libraries
-- ![GLFW](https://www.glfw.org/)
+- [**GLFW**](https://www.glfw.org/)
 
 
