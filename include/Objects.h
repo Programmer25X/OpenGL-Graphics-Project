@@ -9,76 +9,33 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
+
 class Object
 {
 public:
+	Object();
 
+protected:
+	std::vector<GLfloat> verticies = {};
+	std::vector<GLuint> indices = {};
+	glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+	GLuint shininess = 1;
+
+
+public:
+	const std::vector<GLuint> getIndices() const;
+	const std::vector<GLfloat> getVerticies() const;
+	const glm::vec3 getPosition() const;
+	const GLuint getShininess() const;
+
+	void setShininess(GLuint pShininess = 1); 
 };
 
 class BasicCube : public Object
 {
-private:
-	std::vector<GLfloat> verticies =
-	{
-		// Coordinates			  Normals	           Texture Coordinates 
-
-	-100.0f, -100.0f, -100.0f,		0.0f, 0.0f, -1.0f,		0.0f, 0.0f,
-	 100.0f, -100.0f, -100.0f,		0.0f, 0.0f, -1.0f,		1.0f, 0.0f,
-	 100.0f,  100.0f, -100.0f,		0.0f, 0.0f, -1.0f,		1.0f, 1.0f,
-	 100.0f,  100.0f, -100.0f,		0.0f, 0.0f, -1.0f,		1.0f, 1.0f,
-	-100.0f,  100.0f, -100.0f,		0.0f, 0.0f, -1.0f,		0.0f, 1.0f,
-	-100.0f, -100.0f, -100.0f,		0.0f, 0.0f, -1.0f,		0.0f, 0.0f,
-		
-	-100.0f, -100.0f,  100.0f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f,
-	 100.0f, -100.0f,  100.0f,		0.0f, 0.0f, 1.0f,		1.0f, 0.0f,
-	 100.0f,  100.0f,  100.0f,		0.0f, 0.0f, 1.0f,		1.0f, 1.0f,
-	 100.0f,  100.0f,  100.0f,		0.0f, 0.0f, 1.0f,		1.0f, 1.0f,
-	-100.0f,  100.0f,  100.0f,		0.0f, 0.0f, 1.0f,		0.0f, 1.0f,
-	-100.0f, -100.0f,  100.0f,		0.0f, 0.0f, 1.0f,		0.0f, 0.0f,
-
-	-100.0f,  100.0f,  100.0f,		-1.0f,  0.0f,  0.0f,	1.0f, 0.0f,
-	-100.0f,  100.0f, -100.0f,		-1.0f,  0.0f,  0.0f,	1.0f, 1.0f,
-	-100.0f, -100.0f, -100.0f,		-1.0f,  0.0f,  0.0f,	0.0f, 1.0f,
-	-100.0f, -100.0f, -100.0f,		-1.0f,  0.0f,  0.0f,	0.0f, 1.0f,
-	-100.0f, -100.0f,  100.0f,		-1.0f,  0.0f,  0.0f,	0.0f, 0.0f,
-	-100.0f,  100.0f,  100.0f,		-1.0f,  0.0f,  0.0f,	1.0f, 0.0f,
-
-	 100.0f,  100.0f,  100.0f,		1.0f,  0.0f,  0.0f,		1.0f, 0.0f,
-	 100.0f,  100.0f, -100.0f,		1.0f,  0.0f,  0.0f,		1.0f, 1.0f,
-	 100.0f, -100.0f, -100.0f,		1.0f,  0.0f,  0.0f,		0.0f, 1.0f,
-	 100.0f, -100.0f, -100.0f,		1.0f,  0.0f,  0.0f,		0.0f, 1.0f,
-	 100.0f, -100.0f,  100.0f,		1.0f,  0.0f,  0.0f,		0.0f, 0.0f,
-	 100.0f,  100.0f,  100.0f,		1.0f,  0.0f,  0.0f,		1.0f, 0.0f,
-
-	-100.0f, -100.0f, -100.0f,		0.0f, -1.0f,  0.0f,		0.0f, 1.0f,
-	 100.0f, -100.0f, -100.0f,		0.0f, -1.0f,  0.0f,		1.0f, 1.0f,
-	 100.0f, -100.0f,  100.0f,		0.0f, -1.0f,  0.0f,		1.0f, 0.0f,
-	 100.0f, -100.0f,  100.0f,		0.0f, -1.0f,  0.0f,		1.0f, 0.0f,
-	-100.0f, -100.0f,  100.0f,		0.0f, -1.0f,  0.0f,		0.0f, 0.0f,
-	-100.0f, -100.0f, -100.0f,		0.0f, -1.0f,  0.0f,		0.0f, 1.0f,
-
-	-100.0f,  100.0f, -100.0f,		0.0f,  1.0f,  0.0f,		0.0f, 1.0f,
-	 100.0f,  100.0f, -100.0f,		0.0f,  1.0f,  0.0f,		1.0f, 1.0f,
-	 100.0f,  100.0f,  100.0f,		0.0f,  1.0f,  0.0f,		1.0f, 0.0f,
-	 100.0f,  100.0f,  100.0f,		0.0f,  1.0f,  0.0f,		1.0f, 0.0f,
-	-100.0f,  100.0f,  100.0f,		0.0f,  1.0f,  0.0f,		0.0f, 0.0f,
-	-100.0f,  100.0f, -100.0f,		0.0f,  1.0f,  0.0f,		0.0f, 1.0f
-
-	};
-
-	std::vector<GLuint> indices =
-	{
-		0, 1, 2,
-		2, 3, 0
-	};
-
-	glm::vec3 cubePosition = glm::vec3(0.0f, 0.0f, 0.0f);
 
 public:
-
-	const glm::vec3 getCubePosition() const;
-	const std::vector<GLuint> getIndices() const; 
-	const std::vector<GLfloat> getVerticies() const;
+	BasicCube(); 
 };
 
 #endif

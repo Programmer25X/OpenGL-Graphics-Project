@@ -23,14 +23,14 @@
 #include "imgui/imgui_impl_glfw.h"
 
 
-struct RenderingSettings
+struct OtherRenderingSettings
 {
 	bool isSettingsWindowOpen = true;
 	bool isWireframeEnabled = false;
-	bool isVSyncActive = false;
+	bool isVSyncEnabled = false;
+	bool isGammaEnabled = false;
 	bool isRenderingMultipleCubes = true;
 };
-
 
 struct DirectionalLightSettings
 {
@@ -81,11 +81,16 @@ struct CameraSettings
 	GLfloat speed = 0.0f; 
 };
 
+struct BoxSettings
+{
+	GLuint shininess = 0;
+};
+
 GLfloat lastXPosition = 800.0f / 2.0f;
 GLfloat lastYPosition = 600.0f / 2.0f;
 GLboolean firstMouseInput = GL_TRUE;
 
-BasicCube* cube = nullptr;
+BasicCube* box = nullptr;
 
 DirectionalLight* directionalLight = nullptr;
 SpotLight* spotlight = nullptr;
@@ -111,12 +116,13 @@ Texture* texture2 = nullptr;
 
 Camera* camera = nullptr;
 
-RenderingSettings renderingSettings = {};
+OtherRenderingSettings otherRenderingSettings = {};
 DirectionalLightSettings directionalLightSettings = {};
 SpotlightSettings spotlightSettings = {};
 PointLightSettings pointLightSettings = {}; 
 ColourSettings colourSettings = {};
 CameraSettings cameraSettings = {}; 
+BoxSettings boxSettings = {};
 
 static void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn);
 static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
@@ -140,7 +146,7 @@ GraphicsEngine::~GraphicsEngine()
 	delete(lightSourceShader);
 	delete(renderer);
 
-	delete(cube);
+	delete(box);
 	delete(directionalLight);
 
 	for (PointLight* pointLight : pointLights)
@@ -299,7 +305,7 @@ void GraphicsEngine::run()
 				}
 
 				// Boxes
-				lightingShader->setUniform1f("u_material.shininess", static_cast<GLfloat>(directionalLight->getShininessValue()));
+				lightingShader->setUniform1f("u_material.shininess", static_cast<GLfloat>(box->getShininess()));
 				lightingShader->setUniformMatrix4f("u_projection", projectionMatrix);
 				lightingShader->setUniformMatrix4f("u_view", viewMatrix);
 				lightingShader->setUniformMatrix4f("u_model", modelMatrix); 
@@ -307,7 +313,7 @@ void GraphicsEngine::run()
 
 				// =========================== Drawing the Boxes ===================================================== //
 
-				if (renderingSettings.isRenderingMultipleCubes)
+				if (otherRenderingSettings.isRenderingMultipleCubes)
 				{
 					for (GLuint i = 0; i < (sizeof(cubePositions)/sizeof(cubePositions[0])); i++)
 					{
@@ -351,7 +357,7 @@ void GraphicsEngine::run()
 
 				// =========================== Real-Time Updates and ImGUI ===================================================== //
 
-				ImGui::Begin("Settings", &renderingSettings.isSettingsWindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
+				ImGui::Begin("Settings", &otherRenderingSettings.isSettingsWindowOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
 				lightingShader->useShader();
 
@@ -602,10 +608,9 @@ void GraphicsEngine::run()
 
 				if (ImGui::CollapsingHeader("Boxes"))
 				{
-					GLuint shininessValueTemp = directionalLight->getShininessValue();
-					if (ImGui::SliderInt("Shininess Value##Boxes", (GLint*)&shininessValueTemp, 1, 256))
+					if (ImGui::SliderInt("Shininess Value##Boxes", (GLint*)&boxSettings.shininess, 1, 256))
 					{
-						directionalLight->setShininessValue(shininessValueTemp);
+						box->setShininess(boxSettings.shininess);
 					}
 
 					ImGui::NewLine();
@@ -613,11 +618,11 @@ void GraphicsEngine::run()
 
 				if (ImGui::CollapsingHeader("Rendering"))
 				{
-					ImGui::Checkbox("Multiple Cubes##Rendering", &renderingSettings.isRenderingMultipleCubes);
+					ImGui::Checkbox("Multiple Cubes##Rendering", &otherRenderingSettings.isRenderingMultipleCubes);
 
-					if (ImGui::Checkbox("Wireframe##Rendering", &renderingSettings.isWireframeEnabled))
+					if (ImGui::Checkbox("Wireframe##Rendering", &otherRenderingSettings.isWireframeEnabled))
 					{
-						if (!renderingSettings.isWireframeEnabled)
+						if (!otherRenderingSettings.isWireframeEnabled)
 						{
 							LOG_ERRORS(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
 						}
@@ -627,7 +632,12 @@ void GraphicsEngine::run()
 						}
 					}
 
-					ImGui::Checkbox("VSync", &renderingSettings.isVSyncActive);
+					if (ImGui::Checkbox("Gamma", &otherRenderingSettings.isGammaEnabled))
+					{
+						lightingShader->setUniformBoolean("u_isGammaEnabled", otherRenderingSettings.isGammaEnabled); 
+					}
+
+					ImGui::Checkbox("VSync", &otherRenderingSettings.isVSyncEnabled);
 				}
 
 				if (ImGui::CollapsingHeader("Other Information"))
@@ -670,7 +680,7 @@ void GraphicsEngine::createEntities()
 {
 	// ==================== Creating Objects ================================ //
 
-	cube = new BasicCube();
+	box = new BasicCube();
 
 	directionalLight = new DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f));
 	spotlight = new SpotLight(glm::vec3(1.0f, 1.0f, 1.0f));
@@ -683,9 +693,9 @@ void GraphicsEngine::createEntities()
 	renderer = new Renderer();
 
 	VAO1 = new VertexArrayObject();
-	VBO1 = new VertexBufferObject(cube->getVerticies().data(), cube->getVerticies().size());
+	VBO1 = new VertexBufferObject(box->getVerticies().data(), box->getVerticies().size());
 	layout1 = new VertexBufferLayout();
-	EBO1 = new ElementBufferObject(cube->getIndices().data(), cube->getIndices().size());
+	EBO1 = new ElementBufferObject(box->getIndices().data(), box->getIndices().size());
 
 	VAO2 = new VertexArrayObject();
 	VBO2 = new VertexBufferObject(pointLights[0]->  getVerticies().data(), pointLights[0]->getVerticies().size());
@@ -749,6 +759,10 @@ void GraphicsEngine::createEntities()
 	cameraSettings.speed = camera->getCameraSpeed();
 	cameraSettings.nearPlane = camera->getNearPlane();
 	cameraSettings.farPlane = camera->getFarPlane();
+
+	// ==================== Setting the Box's Inital Values ================================ //
+
+	boxSettings.shininess = box->getShininess();
 
 	// ==================== Adding elements to layouts ================================ //
 

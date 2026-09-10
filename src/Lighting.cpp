@@ -16,11 +16,11 @@ const std::vector<GLuint> Lighting::getIndices() const { return indices; }
 
 const std::vector<GLfloat> Lighting::getVerticies() const { return verticies; }
 
+const glm::vec3 Lighting::getLightDirection() const { return lightDirection; }
+
 void Lighting::setLightColour(const glm::vec3& pLightColor) { lightColour = pLightColor; }
 
 void Lighting::setLightPosition(const glm::vec3& pLightPosition) { lightPosition = pLightPosition; }
-
-const glm::vec3 Lighting::getLightDirection() const { return lightDirection; }
 
 
 // Ambient Lighting 
@@ -51,15 +51,11 @@ const glm::vec3 Lighting::getLightPosition() const { return lightPosition; }
 
 const GLfloat Lighting::getSpecularIntensity() const { return specularStrength; }
 
-const GLint Lighting::getShininessValue() const { return shininessValue; }
-
 const glm::vec3 Lighting::getSpecularColour() const { return specularColour; }
 
 void Lighting::setSpecularIntensity(const GLfloat pSpecularStrength) { specularStrength = pSpecularStrength; }
 
 void Lighting::setSpecularColour() { specularColour = lightColour * specularStrength; }
-
-void Lighting::setShininessValue(const GLint pShininessValue) { shininessValue = pShininessValue; }
 
 
 // ======================================== Directional Light ======================================================= //

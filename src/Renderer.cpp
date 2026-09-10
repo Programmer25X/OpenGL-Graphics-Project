@@ -21,7 +21,7 @@ bool checkAndDisplayErrors(const char* functionName, const char* fileName, int l
 }
 
 /// <summary>
-/// Draws.renders an object based on parameters
+/// Draws/renders an object based on parameters
 /// </summary>
 /// <param name="VAO"></param>
 /// <param name="EBO"></param>

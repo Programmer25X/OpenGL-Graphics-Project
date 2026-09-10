@@ -2,6 +2,7 @@
 
 layout(location = 0) out vec4 FragColor;
 
+#define NR_POINT_LIGHTS 4
 
 struct Material
 {
@@ -49,7 +50,6 @@ struct SpotLight
    vec3 specular;
 };
 
-#define NR_POINT_LIGHTS 4
 
 in vec2 v_TexCoord;
 in vec3 v_normal;  
@@ -64,6 +64,9 @@ uniform SpotLight u_spotLight;
 uniform bool u_isDirectionalLightEnabled = true;
 uniform bool u_isPointlLightEnabled = true;
 uniform bool u_isSpotlLightEnabled = true;
+uniform bool u_isGammaEnabled = false; 
+
+const float GAMMA = 2.2; 
 
 
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDirection);
@@ -72,10 +75,8 @@ vec3 calculateSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir
 
 void main()
 {
-    const float GAMMA = 2.2; 
     vec3 norm = normalize(v_normal);
     vec3 viewDir = normalize(u_viewPosition - FragPos);
-
     vec3 result;
 
     if(u_isDirectionalLightEnabled)
@@ -96,7 +97,15 @@ void main()
        result += calculateSpotLight(u_spotLight, norm, FragPos, viewDir); 
     }
 
-    FragColor = vec4(result, 1.0); 
+    if(u_isGammaEnabled)
+    {
+        result = pow(result, vec3(1.0/GAMMA));
+        FragColor = vec4(result, 1.0); 
+    }
+    else
+    {
+        FragColor = vec4(result, 1.0); 
+    }
 }
 
 vec3 calculateDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDirection)
@@ -147,7 +156,7 @@ vec3 calculatePointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewD
 
     // Attenuation 
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance)); 
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (u_isGammaEnabled ? (distance * distance) : distance)); 
 
     ambient *= attenuation;
     diffuse *= attenuation;
@@ -183,7 +192,7 @@ vec3 calculateSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir
 
     // Attenuation 
     float distance = length(light.position - fragPos);
-    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance)); 
+    float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (u_isGammaEnabled ? (distance * distance) : distance)); 
 
     ambient *= attenuation * intensity;
     diffuse *= attenuation * intensity;
