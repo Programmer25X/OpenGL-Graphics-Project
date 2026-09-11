@@ -25,6 +25,9 @@
 
 constexpr GLuint numberOfPointLights = 4;
 
+int bufferWidth = 0.0f;
+int bufferHeight = 0.0f;
+
 struct OtherRenderingSettings
 {
 	bool isSettingsWindowOpen = true;
@@ -91,6 +94,10 @@ GLfloat lastXPosition = 800.0f / 2.0f;
 GLfloat lastYPosition = 600.0f / 2.0f;
 GLboolean firstMouseInput = GL_TRUE;
 
+glm::mat4 projectionMatrix = glm::mat4(0);
+glm::mat4 viewMatrix = glm::mat4(0);
+glm::mat4 modelMatrix = glm::mat4(0);
+
 std::unique_ptr<Box> box = nullptr;
 
 std::unique_ptr<DirectionalLight> directionalLight = nullptr;
@@ -127,6 +134,7 @@ BoxSettings boxSettings = {};
 
 static void mouse_callback(GLFWwindow* window, double xPositionIn, double yPositionIn);
 static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height); 
 
 
 GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
@@ -161,10 +169,6 @@ void GraphicsEngine::run()
 		glm::vec3(-4.0f,  2.0f, -12.0f),
 		glm::vec3(0.0f,  0.0f, -3.0f) };
 
-	GLfloat aspectRatio = 0.0f;
-	GLint bufferWidth = 0.0f;
-	GLint bufferHeight = 0.0f;
-
 
 // ================================ Initalising GLAD and GLFW ========================================= //
 
@@ -181,6 +185,7 @@ void GraphicsEngine::run()
 
 	glfwMakeContextCurrent(engineWindow->getWindow());
 	glfwGetFramebufferSize(engineWindow->getWindow(), &bufferWidth, &bufferHeight);
+	glfwSetFramebufferSizeCallback(engineWindow->getWindow(), framebuffer_size_callback);
 	glfwSetCursorPosCallback(engineWindow->getWindow(), mouse_callback);
 	glfwSetScrollCallback(engineWindow->getWindow(), scroll_callback);
 	glfwSwapInterval(1); // Syncs to frame rate (FPS)
@@ -627,7 +632,7 @@ void GraphicsEngine::run()
 						}
 					}
 
-					if (ImGui::Checkbox("Gamma", &otherRenderingSettings.isGammaEnabled))
+					if (ImGui::Checkbox("Gamma###Rendering", &otherRenderingSettings.isGammaEnabled))
 					{
 						lightingShader->setUniformBoolean("u_isGammaEnabled", otherRenderingSettings.isGammaEnabled); 
 						texture1 = nullptr;
@@ -848,3 +853,12 @@ void scroll_callback(GLFWwindow* window, double xOffset, double yOffset)
 {
 	camera->processMouseScroll(static_cast<GLfloat>(yOffset)); 
 }
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+	projectionMatrix = camera->getProjectionMatrix(static_cast<const GLfloat>(width), static_cast<const GLfloat>(height), camera->getNearPlane(), camera->getFarPlane());
+
+}
+
+

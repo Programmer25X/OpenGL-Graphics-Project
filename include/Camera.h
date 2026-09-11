@@ -30,7 +30,7 @@ private:
 	GLfloat fieldOfView = 45.0f;
 	GLfloat nearPlane = 0.01f;
 	GLfloat farPlane = 5000.0f;
-	GLfloat cameraSpeed = 60.0f; 
+	GLfloat cameraSpeed = 600.0f; 
 
 	glm::mat4 viewMatrix = glm::mat4(0.0f);
 	glm::mat4 projectionMatrix = glm::mat4(0.0f); 
