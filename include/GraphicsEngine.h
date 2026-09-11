@@ -17,7 +17,7 @@ public:
 	~GraphicsEngine();
 
 private:
-	EngineWindow* engineWindow;
+	EngineWindow* engineWindow = nullptr;
 
 public:
 	void run();

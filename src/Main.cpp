@@ -3,13 +3,12 @@
 #include "Shader.h"
 #include "Window.h"
 
+#include <memory>
+
 int main()
 {
-	EngineWindow* engineWindow = new EngineWindow("C++ Graphics Engine");
-	GraphicsEngine* graphicsEngine = new GraphicsEngine(engineWindow);
-	graphicsEngine->run(); 
-
-	delete engineWindow;
-	delete graphicsEngine; 
+	std::unique_ptr<EngineWindow> engineWindow = std::make_unique<EngineWindow>("C++ Graphics Engine");
+	std::unique_ptr<GraphicsEngine> graphicsEngine = std::make_unique<GraphicsEngine>(engineWindow.get());
+	graphicsEngine->run();  
 	return 0;
 }

@@ -14,8 +14,8 @@ public:
 	~ElementBufferObject();
 
 private:
-	GLuint id;
-	GLuint elementCount; 
+	GLuint id = 0;
+	GLuint elementCount = 0; 
 
 public:
 	void bind() const;

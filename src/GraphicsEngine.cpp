@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <format>
+#include <memory>
 
 #include "GraphicsEngine.h"
 #include "Renderer.h"
@@ -22,6 +23,7 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include "imgui/imgui_impl_glfw.h"
 
+constexpr GLuint numberOfPointLights = 4;
 
 struct OtherRenderingSettings
 {
@@ -50,7 +52,6 @@ struct PointLightSettings
 	GLfloat attenuationLinear = 0.0f;
 	GLfloat attenuationQuadratic = 0.0f;
 };
-
 
 struct SpotlightSettings
 {
@@ -90,31 +91,31 @@ GLfloat lastXPosition = 800.0f / 2.0f;
 GLfloat lastYPosition = 600.0f / 2.0f;
 GLboolean firstMouseInput = GL_TRUE;
 
-BasicCube* box = nullptr;
+std::unique_ptr<Box> box = nullptr;
 
-DirectionalLight* directionalLight = nullptr;
-SpotLight* spotlight = nullptr;
-PointLight* pointLights[4] = {};
+std::unique_ptr<DirectionalLight> directionalLight = nullptr;
+std::unique_ptr<SpotLight> spotlight = nullptr;
+std::unique_ptr<PointLight> pointLights[numberOfPointLights] = {};
 
-Renderer* renderer = nullptr;
+std::unique_ptr<Renderer> renderer = nullptr;
 
-VertexArrayObject* VAO1 = nullptr;
-VertexBufferObject* VBO1 = nullptr;
-VertexBufferLayout* layout1 = nullptr;
-ElementBufferObject* EBO1 = nullptr;
+std::unique_ptr<VertexArrayObject> VAO1 = nullptr;
+std::unique_ptr<VertexBufferObject> VBO1 = nullptr;
+std::unique_ptr<VertexBufferLayout> layout1 = nullptr;
+std::unique_ptr<ElementBufferObject> EBO1 = nullptr;
 
-VertexArrayObject* VAO2 = nullptr;
-VertexBufferObject* VBO2 = nullptr;
-VertexBufferLayout* layout2 = nullptr;
-ElementBufferObject* EBO2 = nullptr;
+std::unique_ptr<VertexArrayObject> VAO2 = nullptr;
+std::unique_ptr<VertexBufferObject> VBO2 = nullptr;
+std::unique_ptr<VertexBufferLayout> layout2 = nullptr;
+std::unique_ptr<ElementBufferObject> EBO2 = nullptr;
 
-Shader* lightingShader = nullptr;
-Shader* lightSourceShader = nullptr;
+std::unique_ptr<Shader> lightingShader = nullptr;
+std::unique_ptr<Shader> lightSourceShader = nullptr;
 
-Texture* texture1 = nullptr;
-Texture* texture2 = nullptr;
+std::unique_ptr<Texture> texture1 = nullptr;
+std::unique_ptr<Texture> texture2 = nullptr;
 
-Camera* camera = nullptr;
+std::unique_ptr<Camera> camera = nullptr;
 
 OtherRenderingSettings otherRenderingSettings = {};
 DirectionalLightSettings directionalLightSettings = {};
@@ -128,7 +129,6 @@ static void mouse_callback(GLFWwindow* window, double xPositionIn, double yPosit
 static void scroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 
 
-
 GraphicsEngine::GraphicsEngine(EngineWindow* pWindow)
 {
 	engineWindow = pWindow;
@@ -138,33 +138,7 @@ GraphicsEngine::~GraphicsEngine()
 {
 	lightingShader->stopUsingShader();
 	lightSourceShader->stopUsingShader();
-
-	delete(texture1);
-	delete(texture2);
-
-	delete(lightingShader);
-	delete(lightSourceShader);
-	delete(renderer);
-
-	delete(box);
-	delete(directionalLight);
-
-	for (PointLight* pointLight : pointLights)
-	{
-		delete pointLight;
-	}
-
-	delete(VAO1);
-	delete(VBO1);
-	delete(EBO1);
-	delete(layout1);
-
-	delete(VAO2);
-	delete(VBO2);
-	delete(EBO2);
-	delete(layout2);
-
-	delete(camera);
+	delete(engineWindow); 
 }
 
 void GraphicsEngine::run()
@@ -427,12 +401,15 @@ void GraphicsEngine::run()
 
 					if (ImGui::ColorEdit3("Light Colour##PointLight", (float*)&colourSettings.pointLightColour, ImGuiColorEditFlags_DisplayRGB))
 					{
-						for (PointLight* pointLight : pointLights)
+						for (const auto& pointLight : pointLights)
 						{
-							pointLight->setLightColour(glm::vec3(colourSettings.pointLightColour.x, colourSettings.pointLightColour.y, colourSettings.pointLightColour.z));
-							pointLight->setDiffuseColour();
-							pointLight->setAmbientColour();
-							pointLight->setSpecularColour();
+							if (pointLight)
+							{
+								pointLight->setLightColour(glm::vec3(colourSettings.pointLightColour.x, colourSettings.pointLightColour.y, colourSettings.pointLightColour.z));
+								pointLight->setDiffuseColour();
+								pointLight->setAmbientColour();
+								pointLight->setSpecularColour();
+							}
 						}
 					}
 
@@ -440,28 +417,37 @@ void GraphicsEngine::run()
 
 					if (ImGui::SliderFloat("Ambient Intensity##PointLight", (float*)&pointLightSettings.ambientIntensity, 0.0f, 2.0f, "%.3f"))
 					{
-						for (PointLight* pointLight : pointLights)
+						for (const auto& pointLight : pointLights)
 						{
-							pointLight->setAmbientIntensity(pointLightSettings.ambientIntensity);
-							pointLight->setAmbientColour();
+							if (pointLight)
+							{
+								pointLight->setAmbientIntensity(pointLightSettings.ambientIntensity);
+								pointLight->setAmbientColour();
+							}
 						}
 					}
 						
 					if (ImGui::SliderFloat("Diffuse Intensity##PointLight", (float*)&pointLightSettings.diffuseIntensity, 0.0f, 2.0f, "%.3f"))
 					{
-						for (PointLight* pointLight : pointLights)
+						for (const auto& pointLight : pointLights)
 						{
-							pointLight->setDiffuseIntensity(pointLightSettings.diffuseIntensity);
-							pointLight->setDiffuseColour();
+							if (pointLight)
+							{
+								pointLight->setDiffuseIntensity(pointLightSettings.diffuseIntensity);
+								pointLight->setDiffuseColour();
+							}
 						}
 					}
 
 					if (ImGui::SliderFloat("Specular Intensity##PointLight", (float*)&pointLightSettings.specularIntensity, 0.0f, 1.0f, "%.3f"))
 					{
-						for (PointLight* pointLight : pointLights)
+						for (const auto& pointLight : pointLights)
 						{
-							pointLight->setSpecularIntensity(pointLightSettings.specularIntensity);
-							pointLight->setSpecularColour();
+							if (pointLight)
+							{
+								pointLight->setSpecularIntensity(pointLightSettings.specularIntensity);
+								pointLight->setSpecularColour();
+							}
 						}
 					}
 
@@ -469,25 +455,34 @@ void GraphicsEngine::run()
 
 					if (ImGui::SliderFloat("Attenuation Constant##PointLight", (float*)&pointLightSettings.attenuationConstant, 0.0f, 1.0f, "%.3f"))
 					{
-						for (PointLight* pointLight : pointLights)
+						for (const auto& pointLight : pointLights)
 						{
-							pointLight->setConstant(pointLightSettings.attenuationConstant);
+							if (pointLight)
+							{
+								pointLight->setConstant(pointLightSettings.attenuationConstant);
+							}
 						}
 					}
 
 					if (ImGui::SliderFloat("Attenuation Linear##PointLight", (float*)&pointLightSettings.attenuationLinear, 0.0014f, 0.7f, "%.4f", ImGuiSliderFlags_Logarithmic))
 					{
-						for (PointLight* pointLight : pointLights)
+						for (const auto& pointLight : pointLights)
 						{
-							pointLight->setLinear(pointLightSettings.attenuationLinear);
+							if (pointLight)
+							{
+								pointLight->setLinear(pointLightSettings.attenuationLinear);
+							}
 						}
 					}
 
 					if (ImGui::SliderFloat("Attenuation Quadratic##PointLight", (float*)&pointLightSettings.attenuationQuadratic, 0.000007f, 1.8f, "%.6f", ImGuiSliderFlags_Logarithmic))
 					{
-						for (PointLight* pointLight : pointLights)
+						for (const auto& pointLight : pointLights)
 						{
-							pointLight->setQuadratic(pointLightSettings.attenuationQuadratic);
+							if (pointLight)
+							{
+								pointLight->setQuadratic(pointLightSettings.attenuationQuadratic);
+							}
 						}
 					}
 
@@ -635,6 +630,12 @@ void GraphicsEngine::run()
 					if (ImGui::Checkbox("Gamma", &otherRenderingSettings.isGammaEnabled))
 					{
 						lightingShader->setUniformBoolean("u_isGammaEnabled", otherRenderingSettings.isGammaEnabled); 
+						texture1 = nullptr;
+						texture2 = nullptr; 
+						texture1 = std::make_unique<Texture>("Textures\\Images\\container2.png", otherRenderingSettings.isGammaEnabled);
+						texture2 = std::make_unique<Texture>("Textures\\Images\\container2_specular.png", otherRenderingSettings.isGammaEnabled);
+						texture1->bind(0);
+						texture2->bind(1);
 					}
 
 					ImGui::Checkbox("VSync", &otherRenderingSettings.isVSyncEnabled);
@@ -644,6 +645,13 @@ void GraphicsEngine::run()
 				{
 					ImGui::Text("Application's Average FPS: %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
 				}
+
+				ImGui::NewLine();
+
+				if (ImGui::Button("Exit Application##Close"))
+				{
+					LOG_ERRORS(engineWindow->processInput(engineWindow->getWindow(), true));
+				}
 		
 				ImGui::End();
 			}
@@ -651,7 +659,7 @@ void GraphicsEngine::run()
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-			camera->processCameraInputs(engineWindow->getWindow());
+			LOG_ERRORS(camera->processCameraInputs(engineWindow->getWindow()));
 			LOG_ERRORS(engineWindow->processInput(engineWindow->getWindow()));
 			LOG_ERRORS(glfwSwapBuffers(engineWindow->getWindow())); // Swap front buffer and back buffer
 
@@ -680,35 +688,35 @@ void GraphicsEngine::createEntities()
 {
 	// ==================== Creating Objects ================================ //
 
-	box = new BasicCube();
+	box = std::make_unique<Box>();
 
-	directionalLight = new DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f));
-	spotlight = new SpotLight(glm::vec3(1.0f, 1.0f, 1.0f));
+	directionalLight = std::make_unique<DirectionalLight>(glm::vec3(1.0f, 1.0f, 1.0f));
+	spotlight = std::make_unique<SpotLight>(glm::vec3(1.0f, 1.0f, 1.0f));
 
 	for (GLuint i = 0; i < (sizeof(pointLights) / sizeof(pointLights[0])); i++)
 	{
-		pointLights[i] = new PointLight(glm::vec3(1.0, 0.0f, 1.0f));
+		pointLights[i] = std::make_unique<PointLight>(glm::vec3(1.0, 0.0f, 1.0f));
 	}
 
-	renderer = new Renderer();
+	renderer = std::make_unique<Renderer>();
 
-	VAO1 = new VertexArrayObject();
-	VBO1 = new VertexBufferObject(box->getVerticies().data(), box->getVerticies().size());
-	layout1 = new VertexBufferLayout();
-	EBO1 = new ElementBufferObject(box->getIndices().data(), box->getIndices().size());
+	VAO1 = std::make_unique<VertexArrayObject>();
+	VBO1 = std::make_unique<VertexBufferObject>(box->getVerticies().data(), box->getVerticies().size());
+	layout1 = std::make_unique<VertexBufferLayout>();
+	EBO1 = std::make_unique<ElementBufferObject>(box->getIndices().data(), box->getIndices().size());
 
-	VAO2 = new VertexArrayObject();
-	VBO2 = new VertexBufferObject(pointLights[0]->  getVerticies().data(), pointLights[0]->getVerticies().size());
-	layout2 = new VertexBufferLayout();
-	EBO2 = new ElementBufferObject(pointLights[0]->getIndices().data(), pointLights[0]->getVerticies().size());
+	VAO2 = std::make_unique<VertexArrayObject>();
+	VBO2 = std::make_unique<VertexBufferObject>(pointLights[0]->  getVerticies().data(), pointLights[0]->getVerticies().size());
+	layout2 = std::make_unique<VertexBufferLayout>();
+	EBO2 = std::make_unique<ElementBufferObject>(pointLights[0]->getIndices().data(), pointLights[0]->getVerticies().size());
 
-	lightingShader = new Shader("Shaders\\Light.vert", "Shaders\\Light.frag");
-	lightSourceShader = new Shader("Shaders\\LightSource.vert", "Shaders\\LightSource.frag");
+	lightingShader = std::make_unique<Shader>("Shaders\\Light.vert", "Shaders\\Light.frag");
+	lightSourceShader = std::make_unique<Shader>("Shaders\\LightSource.vert", "Shaders\\LightSource.frag");
 
-	texture1 = new Texture("Textures\\Images\\container2.png");
-	texture2 = new Texture("Textures\\Images\\container2_specular.png");
+	texture1 = std::make_unique<Texture>("Textures\\Images\\container2.png", otherRenderingSettings.isGammaEnabled);
+	texture2 = std::make_unique<Texture>("Textures\\Images\\container2_specular.png", otherRenderingSettings.isGammaEnabled);
 
-	camera = new Camera();
+	camera = std::make_unique<Camera>();
 
 
 	// ==================== Setting the Lights' Initial Values ================================ //
@@ -739,11 +747,14 @@ void GraphicsEngine::createEntities()
 	pointLightSettings.attenuationLinear = pointLights[0]->getLinear();
 	pointLightSettings.attenuationQuadratic = pointLights[0]->getQuadratic();
 	
-	for (PointLight* pointLight : pointLights)
+	for (const auto& pointLight : pointLights)
 	{
-		pointLight->setDiffuseColour();
-		pointLight->setAmbientColour();
-		pointLight->setSpecularColour();
+		if (pointLight)
+		{
+			pointLight->setDiffuseColour();
+			pointLight->setAmbientColour();
+			pointLight->setSpecularColour();
+		}
 	} 
 
 	// ==================== Setting the Initial Colour Values ================================ //
@@ -794,6 +805,7 @@ void GraphicsEngine::styleSettingsMenu()
 	ImGui::GetStyle().Colors[ImGuiCol_Header] = ImVec4(50.0f / 255.0f, 50.0f / 255.0f, 50.0f / 255.0f, 1.0f);
 	ImGui::GetStyle().Colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 	ImGui::GetStyle().Colors[ImGuiCol_Border] = ImVec4(80.0f / 255.0f, 235.0f / 255.0f, 114.0f / 255.0f, 1.0f); 
+	ImGui::GetStyle().Colors[ImGuiCol_Button] = ImVec4(50.0f / 255.0f, 50.0f / 255.0f, 50.0f / 255.0f, 1.0f);
 }
 
 /// <summary>

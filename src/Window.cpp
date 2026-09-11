@@ -29,9 +29,9 @@ const void EngineWindow::setAspectRatio(const GLint bufferWidth, const GLint buf
 }
 
 
-void EngineWindow::processInput(GLFWwindow* window)
+void EngineWindow::processInput(GLFWwindow* window, const bool isClosedButtonClicked)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS || isClosedButtonClicked)
 	{
 		glfwSetWindowShouldClose(window, true);
 	}

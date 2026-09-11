@@ -134,12 +134,10 @@ public:
 	
 	// Specular Lighting 
 	const GLfloat getSpecularIntensity() const;
-	const GLint getShininessValue() const;
 	const glm::vec3 getSpecularColour() const;
 
 	void setSpecularIntensity(const GLfloat pSpecularStrength);
 	void setSpecularColour();
-	void setShininessValue(const GLint pShininessValue);
 
 };
 

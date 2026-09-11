@@ -13,7 +13,7 @@ public:
 	~VertexBufferObject(); 
 
 private:
-	GLuint id; 
+	GLuint id = 0; 
 
 public:
 	void bind() const;

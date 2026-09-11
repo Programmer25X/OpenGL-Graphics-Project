@@ -20,7 +20,7 @@ const std::vector<GLfloat> Object::getVerticies() const { return verticies; }
 
 
 
-BasicCube::BasicCube()
+Box::Box()
 {
 	verticies =
 	{

@@ -60,7 +60,7 @@ void Mesh::drawModel(const VertexArrayObject& VAO, const ElementBufferObject& EB
 		}
 
 		shader.setUniform1i(("u_material " + name + number).c_str(), i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].getId());
+		glBindTexture(GL_TEXTURE_2D, textures[i].getID());
 	}
 
 	glActiveTexture(GL_TEXTURE0);

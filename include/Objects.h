@@ -31,11 +31,11 @@ public:
 	void setShininess(GLuint pShininess = 1); 
 };
 
-class BasicCube : public Object
+class Box : public Object
 {
 
 public:
-	BasicCube(); 
+	Box(); 
 };
 
 #endif

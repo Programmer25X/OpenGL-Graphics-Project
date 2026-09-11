@@ -28,7 +28,7 @@ public:
 	const void setAspectRatio(const GLint bufferWidth, const GLint bufferHeight);
 
 
-	void processInput(GLFWwindow* window); 
+	void processInput(GLFWwindow* window, const bool isClosedButtonClicked = false); 
 };
 
 #endif

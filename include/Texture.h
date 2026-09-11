@@ -8,22 +8,21 @@
 class Texture
 {
 public:
-	Texture(const std::string& filePath);
+	Texture(const std::string& filePath, const bool gammaCorrection = false);
 	~Texture();
 
 private:
-	GLuint id = 0;
+	GLuint ID = 0;
 	std::string textureFilePath = "";
 	std::string type = "";
-	unsigned char* buffer = nullptr;
 	GLint width = 0;
 	GLint height = 0;
 	GLint numberOfColorChanels = 0;
 
 public:
 	const std::string getType() const;
-	const GLuint getId() const; 
-	void bind(GLuint slot = 0) const; 
+	const GLuint getID() const; 
+	void bind(const GLuint slot = 0) const; 
 	void unbind() const; 
 };
 
