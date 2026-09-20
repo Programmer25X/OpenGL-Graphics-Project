@@ -25,7 +25,7 @@
 
 ## Technical Details
 - **Data Structures & Control Structures**: Implemented data structures, including arrays, maps and structs, and control structures to manage the user's inputs
-- **Object-Oriented Programming (OOP)**: By using classes, inheritance, encapsulation and reusable components, I created efficient and robust code, allowing VAO, VBO, EBO, Renderer, Camera, Textures and Light objects to be instantiated 
+- **Object-Oriented Programming (OOP)**: By using classes, inheritance, encapsulation and reusable components, I created efficient and robust code, allowing Vertex Array Object (VAO), Vertex Buffer Object (VBO), Element Buffer Object (EBO), Renderer, Camera, Textures and Light objects to be instantiated 
 - **Event-Driven Programming (EDP)**: Used control structures to implement event listeners, allowing the state of the scene to change as users interact with the user interface
 - **OpenGL**: Utilised the OpenGL API and created vertex and fragment shaders in GLSL to simulate lighting within a three-dimensional scene
 - **Dear ImGui**: To enable users to change the lighting within the scene, a user interface was implemented by using the Dear ImGui library  
