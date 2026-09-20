@@ -47,6 +47,9 @@
 ----
 
 ## Media
+<picture>
+   <img width="1282" height="722" alt="OpenGL_Project_1" src="https://github.com/user-attachments/assets/15b09f44-d518-4a5c-bbd8-e9d973b68ec3"/>
+</picture>
 
 ----
 
