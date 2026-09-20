@@ -58,7 +58,7 @@
 - **Computational Thinking**: Utilised computational methods including decomposition, abstraction and visualisation
 - **Testing & Debugging**: Throughout the development process, I had to continuously debug and test the source code and handle any warnings or errors
 - **C++ Programming, C Programming, Object-Oriented Programming (OOP) & Event Driven Programming (EDP)**: Developed my proficiency and understanding of the C++ and C programming languages and object-oriented programming paradigm, enabling me to successfully implement event listeners, a user interface (UI), camera movement and Blinn-Phong lighting
-- ** GPU-Based Graphics Programming**: Gained knowledge and skills regarding GPU-based graphics programming by creating VAOs, VBOs, EBOs and shaders
+- **GPU-Based Graphics Programming**: Gained knowledge and skills regarding GPU-based graphics programming by creating VAOs, VBOs, EBOs and shaders
 - **Mathematical Skills**: Utilised matrices, vectors, coordinate systems and trigonometry to implement lighting and the Model-View-Projection (MVP) matrix for 3D transformations 
 
 ----
