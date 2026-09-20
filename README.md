@@ -66,7 +66,10 @@ Disclaimer: This project was developed for **portfolio** purposes only. To my kn
 - [**The Cherno**](https://www.youtube.com/watch?v=W3gAzLwfIP0&list=PLlrATfBNZ98foTJPJ_Ev03o2oq3-GGOS2) 
 
 ### Libraries
+- [**GLAD**](https://github.com/Dav1dde/glad)
 - [**GLFW**](https://www.glfw.org/)
+- [**stb_image.h**](https://github.com/nothings/stb/blob/master/stb_image.h)
+- [**GLM**](https://glm.g-truc.net/0.9.8/index.html)
 - [**Dear ImGui**](https://github.com/ocornut/imgui)
-
+- [**Assimp**](https://github.com/assimp/assimp/blob/master/Build.md)
 
