@@ -10,6 +10,7 @@
 
 ## Overview
 
+To improve my understanding of  C++ and computer graphics, I have been developing a C++ 3D OpenGL project, which currently allows users to navigate the scene and change the lighting and rendering settings by interacting with a settings menu. My goal is to improve my proficiency in C++ and develop my understanding of concepts associated with graphics programming, so that I can improve my understanding of game engines and how to develop a custom 3D game engine.
 
 ----
 
