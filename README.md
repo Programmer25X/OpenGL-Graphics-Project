@@ -75,8 +75,12 @@ Disclaimer: This project was developed for **portfolio** purposes only. To my kn
 ### Libraries
 - [**GLAD**](https://github.com/Dav1dde/glad)
 - [**GLFW**](https://www.glfw.org/)
-- [**stb_image.h**](https://github.com/nothings/stb/blob/master/stb_image.h) -  By Sean Barrett
+- [**stb_image.h**](https://github.com/nothings/stb/blob/master/stb_image.h)
 - [**GLM**](https://glm.g-truc.net/0.9.8/index.html)
 - [**Dear ImGui**](https://github.com/ocornut/imgui)
 - [**Assimp**](https://github.com/assimp/assimp/blob/master/Build.md)
 
+### Textures 
+- [**awesomeface.png**](https://learnopengl.com/img/textures/awesomeface.png)
+- [**container2.png**](https://learnopengl.com/img/textures/container2.png)
+- [**container2_specular.png**](https://learnopengl.com/img/textures/container2_specular.png)
