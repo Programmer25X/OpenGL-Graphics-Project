@@ -30,7 +30,7 @@ To improve my understanding of  C++ and computer graphics, I have been developin
 - **Event-Driven Programming (EDP)**: Used control structures to implement event listeners, allowing the state of the scene to change as users interact with the user interface
 - **OpenGL**: Utilised the OpenGL API and created vertex and fragment shaders in GLSL to simulate lighting within a three-dimensional scene
 - **Dear ImGui**: To enable users to change the lighting within the scene, a user interface was implemented by using the Dear ImGui library  
-- **Memory Management**: Utilised pointers to dynamically allocate and deallocate memory during runtime
+- **Memory Management**: Utilised smart pointers and raw pointers to dynamically allocate and deallocate memory during runtime
 
 ----
 
