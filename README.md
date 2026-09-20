@@ -17,7 +17,9 @@
 
 - Blinn-Phong Lighting
 - Camera Panning and Movement
-- User Interface
+- Gamma Correction
+- Wireframe Mode
+- Settings Menu 
 
 ----
 
