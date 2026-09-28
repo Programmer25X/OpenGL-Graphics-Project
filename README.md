@@ -17,6 +17,9 @@ To improve my understanding of  C++ and computer graphics, I have been developin
 ## Current Features
 
 - Blinn-Phong Lighting
+- Directional Lighting
+- Point Lighting 
+- Spotlighting
 - Camera Panning and Movement
 - Gamma Correction
 - Wireframe Mode
