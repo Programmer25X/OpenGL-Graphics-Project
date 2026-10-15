@@ -55,6 +55,10 @@ To improve my understanding of  C++ and computer graphics, I have been developin
    <img width="1282" height="722" alt="OpenGL_Project_1" src="https://github.com/user-attachments/assets/15b09f44-d518-4a5c-bbd8-e9d973b68ec3"/>
 </picture>
 
+[**Video**](https://vimeo.com/reviews/24777dc1-ad9c-47cb-8f85-bcd41d2ee6eb/videos/1236198503)
+
+[**Portfolio Page**](https://djcc11.brighton.domains/portfolio/3d-opengl-project/)
+
 ----
 
 ## Gained Skills
